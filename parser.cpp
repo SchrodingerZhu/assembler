@@ -6,7 +6,7 @@
 
 thread_local std::string line = {};
 thread_local size_t counter = 0;
-
+thread_local size_t address = 0x400000;
 parse_error::parse_error(std::string str) : msg(std::move(str)) {}
 
 const char *parse_error::what() const noexcept {

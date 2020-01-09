@@ -12,6 +12,7 @@
 
 extern thread_local std::string line;
 extern thread_local size_t counter;
+extern thread_local size_t address;
 
 struct parse_error : std::exception {
     std::string msg;
@@ -44,6 +45,44 @@ inline uint8_t peek() {
 }
 
 template <class T>
+inline T parse_bin() {
+    T res = 0;
+    while (true) {
+        if(line[counter] == '1') {
+            res = res * 2 + 1;
+        } else if (line[counter] == '0') {
+            res = res * 2;
+        } else {
+            break;
+        }
+        counter++;
+    }
+    return res;
+}
+
+template <class T>
+inline T parse_hex() {
+    T res = 0;
+    while (true) {
+        if(isdigit(line[counter])) {
+            res = res * 16 + (line[counter] - '0');
+        } else {
+            switch (tolower(line[counter])) {
+                case 'a': res = res * 16 + 10; break;
+                case 'b': res = res * 16 + 11; break;
+                case 'c': res = res * 16 + 12; break;
+                case 'd': res = res * 16 + 13; break;
+                case 'e': res = res * 16 + 14; break;
+                case 'f': res = res * 16 + 15; break;
+                default: goto OUT;
+            }
+        }
+        counter ++;
+    }
+OUT:    return res;
+}
+
+template <class T>
 inline T parse_num() {
     eat_sep();
     T cur = 0;
@@ -52,8 +91,16 @@ inline T parse_num() {
         ++counter;
         flag = true;
     }
-    while(!at_line_end() && isdigit(line[counter])) {
-        cur = cur * 10 + (line[counter++] - 48);
+    if (line[counter] == '0' && line[counter + 1] == 'b') {
+        counter += 2;
+        cur = parse_bin<T>();
+    } else if (line[counter] == '0' && line[counter + 1] == 'x') {
+        counter += 2;
+        cur = parse_hex<T>();
+    } else {
+        while (!at_line_end() && (isdigit(line[counter]))) {
+            cur = cur * 10 + (line[counter++] - 48);
+        }
     }
     return flag ? -cur : cur;
 };
@@ -71,7 +118,7 @@ inline std::array<char, 10> next_word() {
     if (unlikely(at_line_end())) {
         throw parse_error("next word from end of line");
     }
-    while(!is_sep(line[counter])) {
+    while(!is_sep(line[counter]) && line[counter] != ')') {
         if (unlikely(a == 10)) {
             throw parse_error(absl::StrCat("name is too long: ", line, ", with current buf: ", buf.data()));
         }

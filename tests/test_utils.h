@@ -17,32 +17,11 @@
     std::clog << "\n------------\n" << "expected: " << std::setw(8) << std::setfill('0') << std::hex << exp << std::setw(0) << ": " << std::bitset<32>(exp) << std::endl\
               << "output:   "  << std::setw(8) << std::hex << real << std::setw(0) << ": " << std::bitset<32>(real) << std::endl;\
 
-
-#define test_asm_R(w, e) \
+#define test_asm(U, w, e) \
     test_case(w, { \
         line = w; \
         counter = 0; \
-        auto res = parse_R().__content; \
-        display_bits(res, e); \
-        assert_eq(res, e); \
-    })\
-    std::clog << std::endl;
-
-#define test_asm_RI(w, e) \
-    test_case(w, { \
-        line = w; \
-        counter = 0; \
-        auto res = parse_RI().__content; \
-        display_bits(res, e); \
-        assert_eq(res, e); \
-    })\
-    std::clog << std::endl;
-
-#define test_asm_COP(w, e) \
-    test_case(w, { \
-        line = w; \
-        counter = 0; \
-        auto res = parse_COP().__content; \
+        auto res = parse_##U().__content; \
         display_bits(res, e); \
         assert_eq(res, e); \
     })\

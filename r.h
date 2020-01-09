@@ -6,7 +6,6 @@
 #define ASSEMBLER_R_H
 
 #include "global.h"
-#include <string>
 #include <absl/container/flat_hash_map.h>
 #include "instructions_types.h"
 #include "parser.h"
