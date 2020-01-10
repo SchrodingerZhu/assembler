@@ -91,6 +91,7 @@ namespace parser_shared {
             job_queue.emplace_back(std::move(buffer), global_address);
             global_address += 4;
         }
+        finished.resize(job_queue.size() + finished.size());
         return job_queue.size();
     }
 
@@ -98,12 +99,6 @@ namespace parser_shared {
 
     void push_result(Instruction intr, size_t addr) {
         auto index = (addr - BASE_ADDR) / 4;
-        if (finished.size() < (index + 1))  {
-            resize_mutex.lock();
-            if (finished.size() < (index + 1))
-                finished.resize(index + 1);
-            resize_mutex.unlock();
-        }
         finished[index] = intr;
     }
 
