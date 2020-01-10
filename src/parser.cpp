@@ -79,7 +79,6 @@ uint8_t parse_register() {
 }
 
 namespace parser_shared {
-    std::mutex resize_mutex {};
     std::size_t global_address {BASE_ADDR};
     mod::vector<task> job_queue {};
     size_t fill_queue() {

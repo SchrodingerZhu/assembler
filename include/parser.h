@@ -19,7 +19,6 @@
 #include <instructions_types.h>
 namespace parser_shared {
     using task = std::pair<mod::string, size_t>;
-    extern std::mutex resize_mutex;
     extern mod::vector<task> job_queue;
     extern mod::vector<Instruction> finished;
     size_t fill_queue();
