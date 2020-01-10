@@ -32,11 +32,10 @@ const size_t WORKERS = std::thread::hardware_concurrency();
 
 extern std::istream *source;
 extern std::ostream *result;
-
+extern std::string input;
+extern std::string output;
 namespace CLI {
     inline int run(int argc, char **argv) {
-        std::string input;
-        std::string output;
         App app{"easy MIPS assembler"};
         app.add_option("-f,--file", input, "input path");
         app.add_option("-o,--output", output, "output path");
