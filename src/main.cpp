@@ -1,8 +1,12 @@
 #include <iostream>
-#include <instructions_types.h>
-#include <cop.h>
-int main() {
-    std::cout << "Hello, World!" << std::endl;
-    std::cout << sizeof(ERET) << std::endl;
-    return 0;
+#include <global.h>
+#include <thead_parser.h>
+
+int main(int argc, char** argv) {
+    CLI::run(argc, argv);
+    run_parsing();
+    for (auto &i : parser_shared::finished) {
+        std::cout << i.__content << std::endl;
+    }
+    finalize();
 }

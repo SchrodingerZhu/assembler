@@ -40,4 +40,8 @@ inline Instruction generate_J(const char* inst) {
 inline Instruction parse_J() {
     return generate_J(next_word().data());
 }
+
+inline bool is_j(const char* w) {
+    return w[0] == 'j' && (w[1] == 0 || (w[1] == 'a' && w[2] == 'l'));
+}
 #endif //ASSEMBLER_J_H

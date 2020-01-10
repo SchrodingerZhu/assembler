@@ -5,12 +5,28 @@
 #ifndef ASSEMBLER_PARSER_H
 #define ASSEMBLER_PARSER_H
 
-#include "global.h"
+#include <global.h>
 #include <iostream>
 #include <cstring>
 #include <absl/strings/str_cat.h>
+#include <thread>
+#include <mutex>
+#include <atomic>
+#include <cstdio>
+#include <queue>
+#include <optional>
+#include <instructions_types.h>
+namespace parser_shared {
+    using task = std::pair<mod::string, size_t>;
+    extern std::mutex resize_mutex;
+    extern mod::vector<task> job_queue;
+    extern mod::vector<Instruction> finished;
+    size_t fill_queue();
+    extern std::size_t global_address;
+    void push_result(Instruction intr, size_t addr);
+}
 
-extern thread_local std::string line;
+extern thread_local mod::string line;
 extern thread_local size_t counter;
 extern thread_local size_t address;
 
@@ -86,7 +102,7 @@ template <class T>
 inline T parse_num() {
     eat_sep();
     T cur = 0;
-    bool flag = 0;
+    bool flag = false;
     if (line[counter] == '-') {
         ++counter;
         flag = true;
@@ -116,7 +132,7 @@ inline std::array<char, 10> next_word() {
     auto a = 0;
     eat_sep();
     if (unlikely(at_line_end())) {
-        throw parse_error("next word from end of line");
+        throw parse_error(absl::StrCat("next word from end of line: ", line, ", position: ", std::to_string(counter)));
     }
     while(!is_sep(line[counter]) && line[counter] != ')') {
         if (unlikely(a == 10)) {
@@ -133,4 +149,6 @@ if(unlikely(x != 10 && reg_name[x] != 0)) \
 else return y;}
 
 uint8_t parse_register();
+
+void parser_life();
 #endif //ASSEMBLER_PARSER_H

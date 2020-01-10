@@ -4,7 +4,7 @@
 
 #include <parser.h>
 
-thread_local std::string line = {};
+thread_local mod::string line = {};
 thread_local size_t counter = 0;
 thread_local size_t address = 0x400000;
 parse_error::parse_error(std::string str) : msg(std::move(str)) {}
@@ -76,4 +76,35 @@ uint8_t parse_register() {
     }
 
     throw parse_error(absl::StrCat("unable to resolve register name: ", reg_name.data()));
+}
+
+namespace parser_shared {
+    std::mutex resize_mutex {};
+    std::size_t global_address {BASE_ADDR};
+    mod::vector<task> job_queue {};
+    size_t fill_queue() {
+        job_queue.clear();
+        while (!source->eof() && job_queue.size() < QUEUE_SIZE) {
+            mod::string buffer;
+            std::getline(*source, buffer);
+            if (buffer.empty()) continue;
+            job_queue.emplace_back(std::move(buffer), global_address);
+            global_address += 4;
+        }
+        return job_queue.size();
+    }
+
+    mod::vector<Instruction> finished;
+
+    void push_result(Instruction intr, size_t addr) {
+        auto index = (addr - BASE_ADDR) / 4;
+        if (finished.size() < (index + 1))  {
+            resize_mutex.lock();
+            if (finished.size() < (index + 1))
+                finished.resize(index + 1);
+            resize_mutex.unlock();
+        }
+        finished[index] = intr;
+    }
+
 }
