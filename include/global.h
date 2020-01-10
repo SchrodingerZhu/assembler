@@ -27,7 +27,7 @@
 
 #define QUEUE_SIZE (1u << 15u)
 #define BASE_ADDR 0x400000
-#define WORKERS 12
+#define WORKERS (std::thread::hardware_concurrency())
 extern std::istream* source;
 extern std::ostream* result;
 
