@@ -2,9 +2,9 @@
 // Created by schrodinger on 1/9/20.
 //
 
-#include "../ri.h"
-#include "../parser.h"
-#include "test_utils.h"
+#include <ri.h>
+#include <parser.h>
+#include <test_utils.h>
 
 int main() {
     test_asm(RI, "tlti $ra, 123", 132776059)

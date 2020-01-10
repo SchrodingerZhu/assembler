@@ -2,8 +2,8 @@
 // Created by schrodinger on 1/10/20.
 //
 
-#include "i.h"
-#include "instructions_types.h"
+#include <i.h>
+#include <instructions_types.h>
 
 IInstruction::IInstruction(uint8_t opcode, std::initializer_list<I_ORDER> order) : opcode(opcode) {
     std::memcpy(this->order, order.begin(), 3);

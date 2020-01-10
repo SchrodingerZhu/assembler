@@ -2,7 +2,7 @@
 // Created by schrodinger on 1/9/20.
 //
 
-#include "parser.h"
+#include <parser.h>
 
 thread_local std::string line = {};
 thread_local size_t counter = 0;

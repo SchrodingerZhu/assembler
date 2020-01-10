@@ -2,9 +2,7 @@
 // Created by schrodinger on 1/9/20.
 //
 
-#include "ri.h"
-
-
+#include <ri.h>
 const absl::flat_hash_map<std::string, uint8_t> RIMap = {
         {"bltz",        0b00000},
         {"bgez",        0b00001},

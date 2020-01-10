@@ -2,7 +2,7 @@
 // Created by schrodinger on 1/9/20.
 //
 
-#include "cop.h"
+#include <cop.h>
 
 Instruction generate_COP(const char* inst) {
     switch(inst[1]) {

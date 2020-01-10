@@ -2,7 +2,7 @@
 // Created by schrodinger on 1/8/20.
 //
 
-#include "r.h"
+#include <r.h>
 
 const absl::flat_hash_map<std::string, RInstruction> RMap = {
         {"add",     {0b100000, {rd, rs, rt}}},

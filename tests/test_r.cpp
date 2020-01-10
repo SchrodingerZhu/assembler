@@ -2,9 +2,9 @@
 // Created by schrodinger on 1/9/20.
 //
 
-#include "../r.h"
-#include "../parser.h"
-#include "test_utils.h"
+#include <r.h>
+#include <parser.h>
+#include <test_utils.h>
 
 int main() {
     test_asm(R, "or  $t0, $a1, $v1", 0x00a34025)

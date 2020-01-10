@@ -25,7 +25,7 @@ inline void eat_whitespace() {
 }
 
 inline bool is_sep(char t) {
-    return !t || t == ' ' || t == ',';
+    return t <= 32 || t == ',' ;
 }
 
 inline void eat_sep() {

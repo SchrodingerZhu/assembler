@@ -2,9 +2,9 @@
 // Created by schrodinger on 1/9/20.
 //
 
-#include "../i.h"
-#include "../parser.h"
-#include "test_utils.h"
+#include <i.h>
+#include <parser.h>
+#include <test_utils.h>
 
 int main() {
     test_asm(I, "addi $t1, $t5, -100", 564789148)

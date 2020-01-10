@@ -4,7 +4,7 @@
 
 #include <bitset>
 #include <iomanip>
-#include "../global.h"
+#include "global.h"
 
 #define TEST_REGISTER(name, val) \
     test_case(parse_register(name), { \

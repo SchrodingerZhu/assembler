@@ -1,5 +1,5 @@
-#include "test_utils.h"
-#include "../parser.h"
+#include <test_utils.h>
+#include <parser.h>
 int main() {
 
     test_case(next_word("add t0, t1"), {
