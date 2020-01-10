@@ -87,8 +87,9 @@ namespace parser_shared {
         while (!source->eof() && job_queue.size() < QUEUE_SIZE) {
             mod::string buffer;
             std::getline(*source, buffer);
-            if (buffer.empty()) continue;
-            job_queue.emplace_back(std::move(buffer), global_address);
+            mod::string real = cleanup(buffer);
+            if (real.empty()) continue;
+            job_queue.emplace_back(std::move(real), global_address);
             global_address += 4;
         }
         finished.resize(job_queue.size() + finished.size());

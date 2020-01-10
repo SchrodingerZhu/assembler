@@ -13,6 +13,7 @@
 #include <mutex>
 #include <atomic>
 #include <cstdio>
+#include <absl/strings/strip.h>
 #include <queue>
 #include <optional>
 #include <instructions_types.h>
@@ -35,6 +36,18 @@ struct parse_error : std::exception {
     explicit parse_error(std::string str);
     [[nodiscard]] const char * what() const noexcept override;
 };
+
+inline std::string cleanup(mod::string& t) {
+    auto a = absl::StripAsciiWhitespace(t);
+    if (auto r = std::memchr(a.data(), '#', a.size())) {
+        std::string m;
+        m.resize((uintptr_t)r - (uintptr_t)a.data());
+        std::memcpy(m.data(), a.data(), m.size());
+        return m;
+    } else {
+        return a.data();
+    }
+}
 
 inline void eat_whitespace() {
     while (counter < line.size() && line[counter] == ' ') counter++;
