@@ -25,7 +25,7 @@
 #define likely(x)       (x)
 #endif
 
-#define QUEUE_SIZE (1u << 15u)
+#define QUEUE_SIZE (50)
 #define BASE_ADDR 0x400000
 #define WORKERS (std::thread::hardware_concurrency())
 extern std::istream* source;
