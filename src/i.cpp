@@ -4,7 +4,7 @@
 
 #include <i.h>
 #include <instructions_types.h>
-
+#include <bitset>
 IInstruction::IInstruction(uint8_t opcode, std::initializer_list<I_ORDER> order) : opcode(opcode) {
     std::memcpy(this->order, order.begin(), 3);
 }
@@ -37,7 +37,7 @@ Instruction generate_I(const char * inst) {
                 res.INST_I.s = parse_register();
                 break;
             case imm:
-                res.INST_I.C = parse_num<int16_t>() - address;
+                solve_imm(res, inst);
                 break;
             case brs:
                 res.INST_I.s = parse_brs();
@@ -79,3 +79,18 @@ const absl::flat_hash_map<std::string, IInstruction> IMap = {
         {"swc1",  {0b111001, {rt_, imm, brs}}},
         {"xori",  {0b001110, {rt_, rs_, imm}}},
 };
+
+void solve_imm(Instruction &res, const char *inst) {
+    auto s = counter;
+    try {
+        res.INST_I.C = parse_num<int16_t>();
+    }
+    catch (const parse_error &e) {
+        if (inst[0] == 'b') {
+            parser_shared::push_label_queue(s, parser_shared::I);
+            res.INST_I.C = 0;
+        } else {
+            throw parse_error{e};
+        }
+    }
+}

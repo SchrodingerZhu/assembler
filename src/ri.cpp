@@ -23,16 +23,27 @@ const absl::flat_hash_map<std::string, uint8_t> RIMap = {
 Instruction generate_RI(const char *inst) {
     auto R = RIMap.at(inst);
     auto s = parse_register();
-    auto offset = parse_num<int16_t>();
-    if (inst[0] == 'b') {
-        offset = ((offset - address) >> 2u) - 1u;
-    }
-    return Instruction {
-        .INST_RI = {
-                .C = static_cast<uint32_t>(offset),
-                .R = R,
-                .s = s,
-                .op = 1,
+    int16_t offset;
+    auto c = counter;
+    try {
+        offset = parse_num<int16_t>();
+        if (inst[0] == 'b') {
+            offset = ((offset - address) >> 2u) - 1u;
         }
+    } catch (parse_error &e) {
+        if (inst[0] == 'b') {
+            parser_shared::push_label_queue(c, parser_shared::RI);
+            offset = 0;
+        } else {
+            throw parse_error{e};
+        }
+    }
+    return Instruction{
+            .INST_RI = {
+                    .C = static_cast<uint32_t>(offset),
+                    .R = R,
+                    .s = s,
+                    .op = 1,
+            }
     };
 }

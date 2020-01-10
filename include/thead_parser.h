@@ -14,5 +14,7 @@
 
 void parser_life(std::atomic_size_t &finished);
 
+void parser_recover();
+
 void run_parsing();
 #endif //ASSEMBLER_THEAD_PARSER_H

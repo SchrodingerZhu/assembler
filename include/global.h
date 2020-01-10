@@ -13,7 +13,7 @@
 #include <memory>
 #include <fstream>
 #include <CLI11.hpp>
-
+#include <thread>
 #define mod std
 #define unreachable()  __builtin_unreachable()
 
@@ -27,15 +27,17 @@
 
 #define QUEUE_SIZE (50)
 #define BASE_ADDR 0x400000
-#define WORKERS (std::thread::hardware_concurrency())
-extern std::istream* source;
-extern std::ostream* result;
+
+const size_t WORKERS = std::thread::hardware_concurrency();
+
+extern std::istream *source;
+extern std::ostream *result;
 
 namespace CLI {
-    inline int run(int argc, char** argv) {
+    inline int run(int argc, char **argv) {
         std::string input;
         std::string output;
-        App app {"easy MIPS assembler"};
+        App app{"easy MIPS assembler"};
         app.add_option("-f,--file", input, "input path");
         app.add_option("-o,--output", output, "output path");
         CLI11_PARSE(app, argc, argv)
@@ -50,6 +52,9 @@ namespace CLI {
             result = &std::cout;
         } else {
             result = new std::ofstream(output);
+        }
+        if (!source->good() || !result->good()) {
+            throw std::runtime_error{"failed to initialize IO module, perhaps no such file?"};
         }
         return 0;
     }

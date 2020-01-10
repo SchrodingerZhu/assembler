@@ -3,7 +3,6 @@
 //
 
 #include <i.h>
-#include <parser.h>
 #include <test_utils.h>
 
 int main() {
@@ -14,4 +13,5 @@ int main() {
     test_asm(I, "lb $k0, 24($k1)", 2205810712)
     test_asm(I, "sh $fp, -55($zero)", 2753494985)
     test_asm(I, "bne $t0, $t1, 0x0040000c", 0x15090002)
+    test_asm(I, "sw $ra, 0($sp)", 0xafbf0000)
 }

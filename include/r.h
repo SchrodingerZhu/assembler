@@ -20,10 +20,6 @@ struct RInstruction {
 
 extern const absl::flat_hash_map<std::string, RInstruction> RMap;
 
-inline bool is_R(std::string_view inst) {
-    return RMap.contains(inst);
-}
-
 Instruction generate_R(const char * inst);
 Instruction parse_JALR();
 Instruction parse_R();

@@ -16,31 +16,64 @@
 #include <absl/strings/strip.h>
 #include <queue>
 #include <optional>
+#include <absl/container/flat_hash_map.h>
 #include <instructions_types.h>
+
+struct parse_error : std::exception {
+    std::string msg;
+
+    explicit parse_error(std::string str);
+
+    [[nodiscard]] const char *what() const noexcept override;
+};
+
 namespace parser_shared {
     using task = std::pair<mod::string, size_t>;
+    enum RecoverType {
+        I, J, RI
+    };
+
+    struct recover {
+        std::string line;
+        size_t addr;
+        size_t pos;
+        RecoverType type;
+
+        recover(std::string line,
+                size_t addr,
+                size_t pos,
+                RecoverType type);
+    };
+
     extern mod::vector<task> job_queue;
+    extern mod::vector<recover> label_queue;
+    extern std::mutex error_mutex;
+    extern std::mutex label_mutex;
+    extern std::mutex label_queue_mutex;
     extern mod::vector<Instruction> finished;
+
     size_t fill_queue();
+
     extern std::size_t global_address;
-    void push_result(Instruction intr, size_t addr);
+    extern std::atomic_bool success;
+    extern absl::flat_hash_map<mod::string, size_t> labels;
+
+    void push_result(const Instruction &intr, size_t addr);
+
+    void push_label_queue(size_t pos, RecoverType type);
+
+    void output_error(const parse_error &error);
 }
 
 extern thread_local mod::string line;
 extern thread_local size_t counter;
 extern thread_local size_t address;
 
-struct parse_error : std::exception {
-    std::string msg;
-    explicit parse_error(std::string str);
-    [[nodiscard]] const char * what() const noexcept override;
-};
-
-inline std::string cleanup(mod::string& t) {
+inline mod::string cleanup(mod::string &t) {
     auto a = absl::StripAsciiWhitespace(t);
     if (auto r = std::memchr(a.data(), '#', a.size())) {
-        std::string m;
-        m.resize((uintptr_t)r - (uintptr_t)a.data());
+        mod::string m;
+        m.resize((uintptr_t) r - (uintptr_t) a.data());
         std::memcpy(m.data(), a.data(), m.size());
         return m;
     } else {
@@ -113,6 +146,9 @@ OUT:    return res;
 template <class T>
 inline T parse_num() {
     eat_sep();
+    if (at_line_end()) {
+        throw parse_error("numerical content expected");
+    }
     T cur = 0;
     bool flag = false;
     if (line[counter] == '-') {
@@ -127,8 +163,12 @@ inline T parse_num() {
         cur = parse_hex<T>();
     } else {
         while (!at_line_end() && (isdigit(line[counter]))) {
+            auto temp = cur;
             cur = cur * 10 + (line[counter++] - 48);
         }
+    }
+    if (!is_sep(line[counter]) && line[counter] != '(') {
+        throw parse_error("wrong number format");
     }
     return flag ? -cur : cur;
 };
@@ -139,15 +179,49 @@ inline uint8_t parse_next_u8_or_zero() {
     return (!at_line_end() && (peek() == ',')) ? parse_u8() : 0;
 }
 
+inline std::string get_label(size_t pos, std::string_view content) {
+    std::string v;
+    while (is_sep(content[pos])) pos++;
+    if (pos == content.size()) {
+        throw parse_error(absl::StrCat("label or address required but not found"));
+    }
+    while (pos < content.size() && (std::isalpha(content[pos]) || std::isalnum(content[pos]) || content[pos] == '_')) {
+        v.push_back(content[pos++]);
+    }
+    if (pos != content.size()) {
+        throw parse_error(absl::StrCat("label format error with: ", content.data()));
+    }
+    return v;
+}
+
+inline void parse_label() {
+    auto m = std::memchr(line.data(), ':', line.length());
+    if (m != nullptr) {
+        std::string key;
+        key.resize((uintptr_t) m - (uintptr_t) line.data());
+        std::memcpy(key.data(), line.data(), key.size());
+        for (auto i : key) {
+            if (unlikely(!isalnum(i) && !isalpha(i) && i != '_')) {
+                throw parse_error(absl::StrCat("wrong label format (contains invalid character): ", key));
+            }
+        }
+        counter += key.size() + 1;
+        parser_shared::label_mutex.lock();
+        parser_shared::labels.insert({std::move(key), address});
+        parser_shared::label_mutex.unlock();
+    }
+}
+
 inline std::array<char, 10> next_word() {
-    std::array<char, 10> buf = {};
+    std::array<char, 10> buf = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
     auto a = 0;
     eat_sep();
     if (unlikely(at_line_end())) {
         throw parse_error(absl::StrCat("next word from end of line: ", line, ", position: ", std::to_string(counter)));
     }
-    while(!is_sep(line[counter]) && line[counter] != ')') {
+    while (!is_sep(line[counter]) && line[counter] != ')') {
         if (unlikely(a == 10)) {
+            buf[9] = 0;
             throw parse_error(absl::StrCat("name is too long: ", line, ", with current buf: ", buf.data()));
         }
         buf[a++] = line[counter++];

@@ -4,6 +4,10 @@
 
 #include <bitset>
 #include <iomanip>
+#include <vector>
+#include <sstream>
+#include <cassert>
+#include <parser.h>
 #include "global.h"
 
 #define TEST_REGISTER(name, val) \
@@ -14,7 +18,7 @@
 })
 
 #define display_bits(real, exp) \
-    std::clog << "\n------------\n" << "expected: " << std::setw(8) << std::setfill('0') << std::hex << exp << std::setw(0) << ": " << std::bitset<32>(exp) << std::endl\
+    std::clog << "------------\n" << "expected: " << std::setw(8) << std::setfill('0') << std::hex << exp << std::setw(0) << ": " << std::bitset<32>(exp) << std::endl\
               << "output:   "  << std::setw(8) << std::hex << real << std::setw(0) << ": " << std::bitset<32>(real) << std::endl;\
 
 #define test_asm(U, w, e) \
@@ -88,9 +92,12 @@ void display(const T&, const T&, const char * m , const char * n, std::false_typ
 #endif
 
 #define test_case(name, block) \
-    std::clog << "testing "<< stringify(name) << ": ";\
+    std::clog << "testing "<< stringify(name) << ": \n";\
     block\
     std::clog << "[SUCCESS]\n";
 
 #define SHOULD_FAIL(block) \
     try { std::clog << "should fail -> "; block; std::clog << "[FAILED TO FAIL]\n"; } catch(...) {std::clog << "[FAILED SUCCESSFULLY]\n";}
+
+
+
