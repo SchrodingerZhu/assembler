@@ -69,43 +69,19 @@ extern thread_local mod::string line;
 extern thread_local size_t counter;
 extern thread_local size_t address;
 
-inline mod::string cleanup(mod::string &t) {
-    auto a = absl::StripAsciiWhitespace(t);
-    if (auto r = std::memchr(a.data(), '#', a.size())) {
-        mod::string m;
-        m.resize((uintptr_t) r - (uintptr_t) a.data());
-        std::memcpy(m.data(), a.data(), m.size());
-        return m;
-    } else {
-        return a.data();
-    }
-}
+mod::string cleanup(mod::string t);
 
-inline void eat_whitespace() {
-    while (counter < line.size() && line[counter] == ' ') counter++;
-}
+void eat_whitespace();
 
-inline bool is_sep(char t) {
-    return t <= 32 || t == ',' ;
-}
+bool is_sep(char t);
 
-inline void eat_sep() {
-    while (counter < line.size() && is_sep(line[counter])) counter++;
-}
+void eat_sep();
 
-inline bool at_line_end() {
-    return counter == line.size();
-}
+bool at_line_end();
 
-inline uint8_t peek() {
-    eat_whitespace();
-    if (unlikely(at_line_end())) {
-        throw parse_error("peek from end of line");
-    }
-    return line[counter];
-}
+uint8_t peek();
 
-template <class T>
+template<class T>
 inline T parse_bin() {
     T res = 0;
     while (true) {
@@ -173,61 +149,15 @@ inline T parse_num() {
     return flag ? -cur : cur;
 };
 
-inline uint8_t parse_u8() { return parse_num<uint8_t>(); };
+uint8_t parse_u8();;
 
-inline uint8_t parse_next_u8_or_zero() {
-    return (!at_line_end() && (peek() == ',')) ? parse_u8() : 0;
-}
+uint8_t parse_next_u8_or_zero();
 
-inline std::string get_label(size_t pos, std::string_view content) {
-    std::string v;
-    while (is_sep(content[pos])) pos++;
-    if (pos == content.size()) {
-        throw parse_error(absl::StrCat("label or address required but not found"));
-    }
-    while (pos < content.size() && (std::isalpha(content[pos]) || std::isalnum(content[pos]) || content[pos] == '_')) {
-        v.push_back(content[pos++]);
-    }
-    if (pos != content.size()) {
-        throw parse_error(absl::StrCat("label format error with: ", content.data()));
-    }
-    return v;
-}
+std::string get_label(size_t pos, std::string_view content);
 
-inline void parse_label() {
-    auto m = std::memchr(line.data(), ':', line.length());
-    if (m != nullptr) {
-        std::string key;
-        key.resize((uintptr_t) m - (uintptr_t) line.data());
-        std::memcpy(key.data(), line.data(), key.size());
-        for (auto i : key) {
-            if (unlikely(!isalnum(i) && !isalpha(i) && i != '_')) {
-                throw parse_error(absl::StrCat("wrong label format (contains invalid character): ", key));
-            }
-        }
-        counter += key.size() + 1;
-        parser_shared::label_mutex.lock();
-        parser_shared::labels.insert({std::move(key), address});
-        parser_shared::label_mutex.unlock();
-    }
-}
+void parse_label();
 
-inline std::array<char, 10> next_word() {
-    std::array<char, 10> buf = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-    auto a = 0;
-    eat_sep();
-    if (unlikely(at_line_end())) {
-        throw parse_error(absl::StrCat("next word from end of line: ", line, ", position: ", std::to_string(counter)));
-    }
-    while (!is_sep(line[counter]) && line[counter] != ')') {
-        if (unlikely(a == 10)) {
-            buf[9] = 0;
-            throw parse_error(absl::StrCat("name is too long: ", line, ", with current buf: ", buf.data()));
-        }
-        buf[a++] = line[counter++];
-    }
-    return buf;
-}
+std::array<char, 10> next_word();
 
 #define CHECK_AND_RETURN(x, y) {\
 if(unlikely(x != 10 && reg_name[x] != 0)) \

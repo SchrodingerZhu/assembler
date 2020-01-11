@@ -79,6 +79,98 @@ uint8_t parse_register() {
     throw parse_error(absl::StrCat("unable to resolve register name: ", reg_name.data()));
 }
 
+mod::string cleanup(mod::string a) {
+    if (auto r = std::memchr(a.data(), '#', a.size())) {
+        a.resize((uintptr_t) r - (uintptr_t) a.data());
+    }
+    auto m = absl::StripSuffix(absl::StripAsciiWhitespace(a), "\n");
+    mod::string res;
+    res.resize(m.length());
+    std::memcpy(res.data(), m.data(), m.length());
+    return res;
+}
+
+void eat_whitespace() {
+    while (counter < line.size() && line[counter] == ' ') counter++;
+}
+
+bool is_sep(char t) {
+    return t <= 32 || t == ',';
+}
+
+void eat_sep() {
+    while (counter < line.size() && is_sep(line[counter])) counter++;
+}
+
+bool at_line_end() {
+    return counter == line.size();
+}
+
+uint8_t peek() {
+    eat_whitespace();
+    if (unlikely(at_line_end())) {
+        throw parse_error("peek from end of line");
+    }
+    return line[counter];
+}
+
+uint8_t parse_u8() { return parse_num<uint8_t>(); }
+
+uint8_t parse_next_u8_or_zero() {
+    return (!at_line_end() && (peek() == ',')) ? parse_u8() : 0;
+}
+
+std::string get_label(size_t pos, std::string_view content) {
+    std::string v;
+    while (is_sep(content[pos])) pos++;
+    if (pos == content.size()) {
+        throw parse_error(absl::StrCat("label or address required but not found"));
+    }
+    while (pos < content.size() && (std::isalpha(content[pos]) || std::isalnum(content[pos]) || content[pos] == '_')) {
+        v.push_back(content[pos++]);
+    }
+    if (pos != content.size()) {
+        throw parse_error(absl::StrCat("label format error with: ", content.data()));
+    }
+    return v;
+}
+
+void parse_label() {
+    auto m = std::memchr(line.data(), ':', line.length());
+    if (m != nullptr) {
+        std::string key;
+        key.resize((uintptr_t) m - (uintptr_t) line.data());
+        std::memcpy(key.data(), line.data(), key.size());
+        for (auto i : key) {
+            if (unlikely(!isalnum(i) && !isalpha(i) && i != '_')) {
+                throw parse_error(absl::StrCat("wrong label format (contains invalid character): ", key));
+            }
+        }
+        counter += key.size() + 1;
+        parser_shared::label_mutex.lock();
+        parser_shared::labels.insert({std::move(key), address});
+        parser_shared::label_mutex.unlock();
+    }
+}
+
+std::array<char, 10> next_word() {
+    std::array<char, 10> buf = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+    auto a = 0;
+    eat_sep();
+    if (unlikely(at_line_end())) {
+        throw parse_error(absl::StrCat("next word from end of line: ", line, ", position: ", std::to_string(counter)));
+    }
+    while (!is_sep(line[counter]) && line[counter] != ')') {
+        if (unlikely(a == 10)) {
+            buf[9] = 0;
+            throw parse_error(absl::StrCat("name is too long: ", line, ", with current buf: ", buf.data()));
+        }
+        buf[a++] = line[counter++];
+    }
+    return buf;
+}
+
+
 namespace parser_shared {
     std::size_t global_address{BASE_ADDR};
     mod::vector<task> job_queue{};
@@ -90,15 +182,27 @@ namespace parser_shared {
 
     size_t fill_queue() {
         job_queue.clear();
+        bool flag = false;
+        std::string buffer{};
         while (source->good() && job_queue.size() < QUEUE_SIZE) {
-            mod::string buffer;
-            std::getline(*source, buffer);
-            mod::string real = cleanup(buffer);
+            mod::string buf;
+            std::getline(*source, buf);
+            mod::string real = cleanup(std::move(buf));
             if (real.empty()) continue;
+            if (real[real.size() - 1] == ':') {
+                buffer = std::move(real);
+                flag = true;
+                continue;
+            }
+            if (flag) {
+                flag = false;
+                real = absl::StrCat(buffer, real);
+            }
             job_queue.emplace_back(std::move(real), global_address);
             global_address += 4;
         }
-        finished.resize(job_queue.size() + finished.size());
+        if (job_queue.size())
+            finished.resize(job_queue.size() + finished.size());
         return job_queue.size();
     }
 

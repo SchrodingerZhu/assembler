@@ -33,7 +33,10 @@ void parser_life(std::atomic_size_t &finished) {
                 throw parse_error(absl::StrCat("failed to resolve the instruction: ", inst.data()));
             }
         } catch (const parse_error &error) {
-            parser_shared::output_error(error);
+            if (test_flag)
+                throw parse_error(error);
+            else
+                parser_shared::output_error(error);
         }
     }
 }
@@ -78,7 +81,16 @@ void parser_recover() {
                     unreachable();
             }
         } catch (const parse_error &e) {
-            output_error(e);
+            if (test_flag)
+                throw parse_error(e);
+            else
+                parser_shared::output_error(e);
         }
     }
+}
+
+bool test_flag = false;
+
+void test_mode(bool flag) {
+    test_flag = flag;
 }

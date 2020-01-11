@@ -11,10 +11,10 @@
 #include <cop.h>
 #include <j.h>
 #include <i.h>
-
+extern bool test_flag;
 void parser_life(std::atomic_size_t &finished);
 
 void parser_recover();
-
+void test_mode(bool);
 void run_parsing();
 #endif //ASSEMBLER_THEAD_PARSER_H

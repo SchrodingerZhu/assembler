@@ -2,6 +2,7 @@
 // Created by schrodinger on 1/10/20.
 //
 #include <test_utils.h>
+#define TEST_MODE
 #include "../include/thead_parser.h"
 
 static size_t BLOCK_TEST_NUM = 0;
@@ -25,6 +26,7 @@ void test_block(const std::string &content, std::vector<uint32_t> expected) {
 }
 
 int main() {
+    test_mode(true);
     test_block("L: add $t0, $t1, $t2\n"
                "M: j L", {0x012a4020, 0x08100000});
     test_block("L: add $t0, $t1, $t2\n"
@@ -34,5 +36,7 @@ int main() {
     test_block("addi    $sp,   $sp, -8 \n"
                "sw      $ra, 0($sp) \n"
                "j LABEL_DONE\n"
-               "LABEL_DONE: jr $ra", {0x23bdfff8, 0xafbf0000, 0x08100003, 0x03e00008});
+               "LABEL_DONE: \n"
+               "\n"
+               "jr $ra", {0x23bdfff8, 0xafbf0000, 0x08100003, 0x03e00008});
 }
