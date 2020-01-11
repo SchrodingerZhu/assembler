@@ -87,15 +87,15 @@ Instruction parse_JALR() {
     } else {
         d = 31;
     }
-    return Instruction {
-        .INST_R =  {
-                .f = 0b001001,
-                .S = 0,
-                .d = d,
-                .t = 0,
-                .s = s,
-                .op = 0
-        }
+    return Instruction{
+            .INST_R =  {
+                    .f = 0b001001,
+                    .S = 0,
+                    .d = d,
+                    .t = 0,
+                    .s = s,
+                    .op = 0
+            }
     };
 }
 

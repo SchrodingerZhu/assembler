@@ -5,6 +5,7 @@
 #include <i.h>
 #include <instructions_types.h>
 #include <bitset>
+
 IInstruction::IInstruction(uint8_t opcode, std::initializer_list<I_ORDER> order) : opcode(opcode) {
     std::memcpy(this->order, order.begin(), 3);
 }
@@ -22,9 +23,9 @@ inline uint8_t parse_brs() {
     return res;
 }
 
-Instruction generate_I(const char * inst) {
+Instruction generate_I(const char *inst) {
     auto A = IMap.at(inst);
-    auto res = Instruction {.INST_I = {.C = 0, .t = 0, .s = 0, .op = A.opcode}};
+    auto res = Instruction{.INST_I = {.C = 0, .t = 0, .s = 0, .op = A.opcode}};
     for (auto i : A.order) {
         switch (i) {
             case rt1:

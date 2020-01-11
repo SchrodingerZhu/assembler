@@ -4,14 +4,14 @@
 
 #include <cop.h>
 
-Instruction generate_COP(const char* inst) {
-    switch(inst[1]) {
+Instruction generate_COP(const char *inst) {
+    switch (inst[1]) {
         case 'f': {
             auto t = parse_register();
             auto d = parse_register();
             auto sel = parse_next_u8_or_zero();
-            return Instruction {
-                    .COP = {  .A = static_cast<uint32_t>(sel),.d = d, .t = t, .R = 0b00100, .op = 0b010000,}
+            return Instruction{
+                    .COP = {.A = static_cast<uint32_t>(sel), .d = d, .t = t, .R = 0b00100, .op = 0b010000,}
             };
         }
 
@@ -19,8 +19,8 @@ Instruction generate_COP(const char* inst) {
             auto t = parse_register();
             auto d = parse_register();
             auto sel = parse_next_u8_or_zero();
-            return Instruction {
-                    .COP = {  .A = static_cast<uint32_t>(sel),.d = d, .t = t, .R = 0b00100, .op = 0b010000,}
+            return Instruction{
+                    .COP = {.A = static_cast<uint32_t>(sel), .d = d, .t = t, .R = 0b00100, .op = 0b010000,}
             };
         }
         case 'r':

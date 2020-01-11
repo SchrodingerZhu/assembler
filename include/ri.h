@@ -12,9 +12,10 @@
 
 extern const absl::flat_hash_map<std::string, uint8_t> RIMap;
 
-Instruction generate_RI(const char* inst);
+Instruction generate_RI(const char *inst);
 
 inline Instruction parse_RI() {
     return generate_RI(next_word().data());
 }
+
 #endif //ASSEMBLER_RI_H

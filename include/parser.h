@@ -85,7 +85,7 @@ template<class T>
 inline T parse_bin() {
     T res = 0;
     while (true) {
-        if(line[counter] == '1') {
+        if (line[counter] == '1') {
             res = res * 2 + 1;
         } else if (line[counter] == '0') {
             res = res * 2;
@@ -97,29 +97,43 @@ inline T parse_bin() {
     return res;
 }
 
-template <class T>
+template<class T>
 inline T parse_hex() {
     T res = 0;
     while (true) {
-        if(isdigit(line[counter])) {
+        if (isdigit(line[counter])) {
             res = res * 16 + (line[counter] - '0');
         } else {
             switch (tolower(line[counter])) {
-                case 'a': res = res * 16 + 10; break;
-                case 'b': res = res * 16 + 11; break;
-                case 'c': res = res * 16 + 12; break;
-                case 'd': res = res * 16 + 13; break;
-                case 'e': res = res * 16 + 14; break;
-                case 'f': res = res * 16 + 15; break;
-                default: goto OUT;
+                case 'a':
+                    res = res * 16 + 10;
+                    break;
+                case 'b':
+                    res = res * 16 + 11;
+                    break;
+                case 'c':
+                    res = res * 16 + 12;
+                    break;
+                case 'd':
+                    res = res * 16 + 13;
+                    break;
+                case 'e':
+                    res = res * 16 + 14;
+                    break;
+                case 'f':
+                    res = res * 16 + 15;
+                    break;
+                default:
+                    goto OUT;
             }
         }
-        counter ++;
+        counter++;
     }
-OUT:    return res;
+    OUT:
+    return res;
 }
 
-template <class T>
+template<class T>
 inline T parse_num() {
     eat_sep();
     if (at_line_end()) {
@@ -167,4 +181,5 @@ else return y;}
 uint8_t parse_register();
 
 void parser_life();
+
 #endif //ASSEMBLER_PARSER_H

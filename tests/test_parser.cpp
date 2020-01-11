@@ -1,4 +1,5 @@
 #include <test_utils.h>
+
 int main() {
 
     test_case(next_word("add t0, t1"), {

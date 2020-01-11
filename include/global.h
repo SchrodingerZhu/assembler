@@ -14,6 +14,7 @@
 #include <fstream>
 #include <CLI11.hpp>
 #include <thread>
+
 #define mod std
 #define unreachable()  __builtin_unreachable()
 
@@ -63,4 +64,5 @@ inline void finalize() {
     if (source != &std::cin) delete source;
     if (result != &std::cout) delete result;
 }
+
 #endif //ASSEMBLER_GLOBAL_H
