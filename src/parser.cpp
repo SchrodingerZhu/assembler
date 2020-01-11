@@ -7,7 +7,8 @@
 thread_local mod::string line = {};
 thread_local size_t counter = 0;
 thread_local size_t address = 0x400000;
-
+thread_local size_t local_line = 0;
+thread_local size_t local_prefix = 0;
 parse_error::parse_error(std::string str) : msg(std::move(str)) {}
 
 const char *parse_error::what() const noexcept {
@@ -173,6 +174,7 @@ std::array<char, 10> next_word() {
 
 namespace parser_shared {
     std::size_t global_address{BASE_ADDR};
+    std::size_t global_line_count{0};
     mod::vector<task> job_queue{};
     std::mutex error_mutex{};
     mod::vector<recover> label_queue;
@@ -180,6 +182,9 @@ namespace parser_shared {
     absl::flat_hash_map<mod::string, size_t> labels;
     std::atomic_bool success = true;
 
+    task::task(mod::string content, size_t address, size_t line_count, size_t prefix) :
+        content(std::move(content)), address(address), line_count(line_count), prefix(prefix)
+    {};
     size_t fill_queue() {
         job_queue.clear();
         bool flag = false;
@@ -187,6 +192,9 @@ namespace parser_shared {
         while (source->good() && job_queue.size() < QUEUE_SIZE) {
             mod::string buf;
             std::getline(*source, buf);
+            global_line_count++;
+            size_t prefix = 0;
+            while(prefix < buf.size() && buf[prefix] == ' ') prefix++;
             mod::string real = cleanup(std::move(buf));
             if (real.empty()) continue;
             if (real[real.size() - 1] == ':') {
@@ -198,7 +206,7 @@ namespace parser_shared {
                 flag = false;
                 real = absl::StrCat(buffer, real);
             }
-            job_queue.emplace_back(std::move(real), global_address);
+            job_queue.emplace_back(std::move(real), global_address, global_line_count, prefix);
             global_address += 4;
         }
         if (job_queue.size())
@@ -214,20 +222,20 @@ namespace parser_shared {
         finished[index] = intr;
     }
 
-    void output_error(const parse_error &error) {
+    void output_error(const parse_error &error, size_t line, size_t pos) {
         success = false;
         error_mutex.lock();
-        std::cerr << "[SYNTAX ERROR] " << error.msg << " (line: " << (address - BASE_ADDR) / 4 << ", pos: "
-                  << counter << ')' << std::endl;
+        std::cerr << "[SYNTAX ERROR] " << error.msg << " (line: " << line << ", pos: "
+                  << pos << ')' << std::endl;
         error_mutex.unlock();
     }
 
     void push_label_queue(size_t pos, RecoverType type) {
         label_queue_mutex.lock();
-        label_queue.emplace_back(line, address, pos, type);
+        label_queue.emplace_back(line, address, pos, type, local_line, local_prefix);
         label_queue_mutex.unlock();
     }
 
-    recover::recover(std::string line, size_t addr, size_t pos, RecoverType type)
-            : line(std::move(line)), addr(addr), pos(pos), type(type) {}
+    recover::recover(std::string line, size_t addr, size_t pos, RecoverType type, size_t line_count, size_t prefix)
+            : line(std::move(line)), addr(addr), pos(pos), type(type), line_count(line_count),  prefix(prefix){}
 }

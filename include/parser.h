@@ -28,7 +28,14 @@ struct parse_error : std::exception {
 };
 
 namespace parser_shared {
-    using task = std::pair<mod::string, size_t>;
+    struct task {
+        mod::string content;
+        size_t address;
+        size_t line_count;
+        size_t prefix;
+        task(mod::string content, size_t address, size_t line_count, size_t prefix);
+    };
+
     enum RecoverType {
         I, J, RI
     };
@@ -38,11 +45,14 @@ namespace parser_shared {
         size_t addr;
         size_t pos;
         RecoverType type;
+        size_t line_count;
+        size_t prefix;
 
         recover(std::string line,
                 size_t addr,
                 size_t pos,
-                RecoverType type);
+                RecoverType type,
+                size_t line_count, size_t prefix);
     };
 
     extern mod::vector<task> job_queue;
@@ -54,6 +64,7 @@ namespace parser_shared {
 
     size_t fill_queue();
 
+    extern std::size_t global_line_count;
     extern std::size_t global_address;
     extern std::atomic_bool success;
     extern absl::flat_hash_map<mod::string, size_t> labels;
@@ -62,12 +73,14 @@ namespace parser_shared {
 
     void push_label_queue(size_t pos, RecoverType type);
 
-    void output_error(const parse_error &error);
+    void output_error(const parse_error &error, size_t, size_t);
 }
 
 extern thread_local mod::string line;
 extern thread_local size_t counter;
 extern thread_local size_t address;
+extern thread_local size_t local_line;
+extern thread_local size_t local_prefix;
 
 mod::string cleanup(mod::string t);
 

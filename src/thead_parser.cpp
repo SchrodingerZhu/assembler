@@ -14,9 +14,11 @@ void parser_life(std::atomic_size_t &finished) {
                 break;
             }
             auto &task = parser_shared::job_queue[t];
-            line = task.first;
+            line = std::move(task.content);
             counter = 0;
-            address = task.second;
+            address = task.address;
+            local_line = task.line_count;
+            local_prefix = task.prefix;
             parse_label();
             auto inst = next_word();
             if (RMap.contains(inst.data())) {
@@ -36,7 +38,7 @@ void parser_life(std::atomic_size_t &finished) {
             if (test_flag)
                 throw parse_error(error);
             else
-                parser_shared::output_error(error);
+                parser_shared::output_error(error, local_line, local_prefix + counter);
         }
     }
 }
@@ -60,8 +62,8 @@ void parser_recover() {
     using namespace parser_shared;
 #pragma omp parallel for schedule(guided) default(shared)
     for (size_t i = 0; i < label_queue.size(); ++i) {
+        auto &job = label_queue[i];
         try {
-            auto &job = label_queue[i];
             auto label = get_label(job.pos, job.line);
             if (unlikely(!labels.contains(label))) {
                 throw parse_error(absl::StrCat("unable to resolve label: ", label));
@@ -84,7 +86,7 @@ void parser_recover() {
             if (test_flag)
                 throw parse_error(e);
             else
-                parser_shared::output_error(e);
+                parser_shared::output_error(e, job.line_count, job.prefix + job.pos);
         }
     }
 }
