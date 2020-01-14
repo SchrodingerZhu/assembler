@@ -3,7 +3,7 @@
 //
 
 #include <instructions_types.h>
-#include <thead_parser.h>
+#include <thread_parser.h>
 #include <bitset>
 
 void parser_life(std::atomic_size_t &finished) {

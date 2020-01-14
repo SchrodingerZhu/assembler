@@ -2,8 +2,8 @@
 // Created by schrodinger on 1/10/20.
 //
 
-#ifndef ASSEMBLER_THEAD_PARSER_H
-#define ASSEMBLER_THEAD_PARSER_H
+#ifndef ASSEMBLER_THREAD_PARSER_H
+#define ASSEMBLER_THREAD_PARSER_H
 
 #include <parser.h>
 #include <r.h>
@@ -22,4 +22,4 @@ void test_mode(bool);
 
 void run_parsing();
 
-#endif //ASSEMBLER_THEAD_PARSER_H
+#endif //ASSEMBLER_THREAD_PARSER_H

@@ -5,7 +5,7 @@
 
 #define TEST_MODE
 
-#include "../include/thead_parser.h"
+#include "thread_parser.h"
 
 static size_t BLOCK_TEST_NUM = 0;
 

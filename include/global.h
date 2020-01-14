@@ -12,7 +12,6 @@
 #include <memory_resource>
 #include <memory>
 #include <fstream>
-#include <CLI11.hpp>
 #include <thread>
 
 #define mod std
@@ -35,34 +34,10 @@ extern std::istream *source;
 extern std::ostream *result;
 extern std::string input;
 extern std::string output;
-namespace CLI {
-    inline int run(int argc, char **argv) {
-        App app{"easy MIPS assembler"};
-        app.add_option("-f,--file", input, "input path");
-        app.add_option("-o,--output", output, "output path");
-        CLI11_PARSE(app, argc, argv)
-        if (input.empty()) {
-            std::cerr << "[WARN] using stdin as input" << std::endl;
-            source = &std::cin;
-        } else {
-            source = new std::ifstream(input);
-        }
-        if (output.empty()) {
-            std::cerr << "[WARN] using stdout as output" << std::endl;
-            result = &std::cout;
-        } else {
-            result = new std::ofstream(output);
-        }
-        if (!source->good() || !result->good()) {
-            throw std::runtime_error{"failed to initialize IO module, perhaps no such file?"};
-        }
-        return 0;
-    }
-}
 
 inline void finalize() {
-    if (source != &std::cin) delete source;
-    if (result != &std::cout) delete result;
+    if (source && source != &std::cin) delete source;
+    if (source && result != &std::cout) delete result;
 }
 
 #endif //ASSEMBLER_GLOBAL_H
