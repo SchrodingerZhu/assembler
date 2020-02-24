@@ -17,7 +17,15 @@ enum I_ORDER : uint8_t {
     rs_,
     imm,
     brs,
-    non
+    non,
+    rt8 = 8,
+    rt9 = 9,
+    rta = 0xa,
+    rtb = 0xb,
+    rt0xc = 0xc,
+    rt0xe = 0xe,
+    rt0x10 = 0x10,
+    rt0x11 = 0x11,
 };
 
 struct IInstruction {

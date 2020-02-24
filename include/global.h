@@ -26,7 +26,7 @@
 #endif
 
 #define QUEUE_SIZE (50)
-#define BASE_ADDR 0x400000
+#define BASE_ADDR 0
 
 const size_t WORKERS = std::thread::hardware_concurrency();
 

@@ -15,10 +15,10 @@ enum Order : uint8_t {
 };
 
 struct RInstruction {
-    uint8_t func: 6;
+    uint8_t func: 6, op: 6;
     Order order[3]{};
 
-    RInstruction(uint8_t b, std::initializer_list<Order>);
+    RInstruction(uint8_t op, uint8_t b, std::initializer_list<Order>);
 };
 
 extern const absl::flat_hash_map<std::string, RInstruction> RMap;

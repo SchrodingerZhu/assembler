@@ -29,7 +29,13 @@ Instruction generate_I(const char *inst) {
     for (auto i : A.order) {
         switch (i) {
             case rt1:
-                res.INST_I.t = 1;
+            case rt0x11:
+            case rt0x10:
+            case rt0xc:
+            case rt0xe:
+            case rt8:
+            case rt9:
+                res.INST_I.t = i;
                 break;
             case rt_:
                 res.INST_I.t = parse_register();
@@ -79,6 +85,18 @@ const absl::flat_hash_map<std::string, IInstruction> IMap = {
         {"sw",    {0b101011, {rt_, imm, brs}}},
         {"swc1",  {0b111001, {rt_, imm, brs}}},
         {"xori",  {0b001110, {rt_, rs_, imm}}},
+        {"bgezal", {0b000001, {rs_, imm, rt0x11}}},
+        {"bltzal", {0b000001, {rs_, imm, rt0x10}}},
+        {"teqi",   {0b000001, {rs_, imm, rt0xc}}},
+        {"tnei",   {0b000001, {rs_, imm, rt0xe}}},
+        {"tgei",   {0b000001, {rs_, imm, rt8}}},
+        {"tgeiu",   {0b000001, {rs_, imm, rt9}}},
+        {"tlti",   {0b000001, {rs_, imm, rta}}},
+        {"tltiu",   {0b000001, {rs_, imm, rtb}}},
+        {"lwl",    {0x22, {rt_, imm, brs}}},
+        {"lwr",    {0x26, {rt_, imm, brs}}},
+        {"swl",    {0x2a, {rt_, imm, brs}}},
+        {"swr",    {0x2e, {rt_, imm, brs}}},
 };
 
 void solve_imm(Instruction &res, const char *inst) {
