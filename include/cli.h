@@ -11,8 +11,21 @@
 #include <global.h>
 #include <thread_parser.h>
 
+/*
+ * NAMESPACE CLI
+ * --------------------------------------
+ * A CLI Tool Generated for the Assembler.
+ * (Improve the user Experience)
+ *
+ */
 namespace CLI {
-    inline int run(int argc, char **argv) {
+    /*
+     * [inline] int run(int argc, char **argv)
+     *
+     * Entrance of the program.
+     *
+     */
+    FAST_PATH int run(int argc, char **argv) {
         App app{"easy MIPS assembler"};
         app.add_option("-f,--file", input, "input path");
         app.add_option("-o,--output", output, "output path");
