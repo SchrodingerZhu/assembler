@@ -9,8 +9,13 @@
 #include "instructions_types.h"
 #include "parser.h"
 #include <absl/strings/str_cat.h>
-
-inline Instruction generate_J(const char *inst) {
+/*!
+ * parsing a J-Type instruction with the given name
+ * @param inst
+ * the instruction name
+ * @return the instruction value
+ */
+FAST_PATH Instruction generate_J(const char *inst) {
     if (unlikely(inst[0] != 'j')) {
         throw parse_error(absl::StrCat("not a valid J instruction: ", line));
     }
@@ -51,12 +56,21 @@ inline Instruction generate_J(const char *inst) {
     }
     unreachable();
 }
-
-inline Instruction parse_J() {
+/*!
+ * parsing a J-Type instruction (the name is auto resolved)
+ * @return the instruction value
+ */
+FAST_PATH Instruction parse_J() {
     return generate_J(next_word().data());
 }
-
-inline bool is_j(const char *w) {
+/*!
+ * check whether the given word is a J-Type Instruction name.
+ * @param w
+ * the word
+ * @return
+ * the checking result
+ */
+FAST_PATH bool is_j(const char *w) {
     return w[0] == 'j' && (w[1] == 0 || (w[1] == 'a' && w[2] == 'l'));
 }
 

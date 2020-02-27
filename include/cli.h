@@ -2,6 +2,13 @@
 // Created by schrodinger on 1/14/20.
 //
 
+/*!
+ * CLI
+ * --------------------------------------
+ * This Header file defines the CLI component of the Assembler.
+ * The CLI is automatically generated with the [CLI11](https://github.com/CLIUtils/CLI11) Library/
+ *
+ */
 #ifndef ASSEMBLER_CLI_H
 #define ASSEMBLER_CLI_H
 
@@ -11,21 +18,22 @@
 #include <global.h>
 #include <thread_parser.h>
 
-/*
- * NAMESPACE CLI
- * --------------------------------------
+/*!
+ * ![CLI11](https://raw.githubusercontent.com/CLIUtils/CLI11/master/docs/CLI11_300.png)
  * A CLI Tool Generated for the Assembler.
  * (Improve the user Experience)
  *
  */
 namespace CLI {
-    /*
-     * [inline] int run(int argc, char **argv)
+    /*!
+     * [FAST_PATH] int run(int argc, char **argv)
      *
      * Entrance of the program.
-     *
+     * @returns the return code of the CLI program
      */
-    FAST_PATH int run(int argc, char **argv) {
+    FAST_PATH int run(
+            /*! count of the arguments */ int argc,
+            /*! pointer to the argument array */ char **argv) {
         App app{"easy MIPS assembler"};
         app.add_option("-f,--file", input, "input path");
         app.add_option("-o,--output", output, "output path");

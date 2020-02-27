@@ -11,15 +11,24 @@
 #include <cop.h>
 #include <j.h>
 #include <i.h>
-
+/// a flag to represent whether the assembler is in a test mode
 extern bool test_flag;
-
+/*!
+ * the normal parser life cycle
+ * @param finished a global flag to detect whether the process if finished
+ */
 void parser_life(std::atomic_size_t &finished);
-
+/*!
+ * the recovering parser life cycle (recover the instruction for labels)
+ */
 void parser_recover();
-
+/*!
+ * set the test node
+ */
 void test_mode(bool);
-
+/*!
+ * spawn threads and start the parsing
+ */
 void run_parsing();
 
 #endif //ASSEMBLER_THREAD_PARSER_H

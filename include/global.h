@@ -2,15 +2,6 @@
 // Created by schrodinger on 1/8/20.
 //
 
-/*
- *
- * GLOBAL_H
- * ---------
- * IO Devices and Useful Macros to Improve the Performance.
- * Global Constants that Will Influence the Final Binary.
- *
- */
-
 #ifndef ASSEMBLER_GLOBAL_H
 #define ASSEMBLER_GLOBAL_H
 
@@ -25,44 +16,44 @@
 
 #define mod std
 
-/*
- *
- * Macro: unreachable/unlikely/likely
- * -----------------------------------
- * Speedup Branch Prediction
- *
- */
 
+/// speed up branch prediction with unreachable condition
 #define unreachable()  __builtin_unreachable()
 #if defined(__GNUC__) || defined(__clang__)
+/// speed up branch prediction with unlikely condition
 #define unlikely(x)     __builtin_expect((x),0)
+/// speed up branch prediction with likely condition
 #define likely(x)       __builtin_expect((x),1)
 #else
 #define unlikely(x)     (x)
 #define likely(x)       (x)
 #endif
 
+/// forced inline for fast path functions
+#define FAST_PATH static inline __attribute__((always_inline))
 
-#define FAST_PATH static inline __attribute__((always_inline)) // Adjust GNU inline options
-
-#define QUEUE_SIZE 500 // Parallel Work Pool Size
+/// parallel work pool size
+#define QUEUE_SIZE 500
 
 #ifndef BASE_ADDR
-#define BASE_ADDR 0 // Start Address
+/// start address of the output binary
+#define BASE_ADDR 0
 #endif
 
-const size_t WORKERS = std::thread::hardware_concurrency(); // Platform Dependent Worker Pool Size
+/// platform dependent worker pool size
+const size_t WORKERS = std::thread::hardware_concurrency();
 
-extern std::istream *source; // INPUT Device (Default: STDIN)
-extern std::ostream *result; // OUTPUT Device (Default: STDOUT)
-extern std::string input; // INPUT PATH
-extern std::string output; // OUTPUT PATH
-/*
- *
- * [FAST_PATH] void finalize()
- * ---------------------------
- * Finalize the IO Devices.
- *
+/// INPUT Device (Default: STDIN)
+extern std::istream *source;
+/// OUTPUT Device (Default: STDOUT)
+extern std::ostream *result;
+/// INPUT PATH
+extern std::string input;
+/// OUTPUT PATH
+extern std::string output;
+
+/*!
+ * [FAST_PATH] Finalize the IO Devices.
  */
 FAST_PATH void finalize() {
     if (source != &std::cin) delete source;
