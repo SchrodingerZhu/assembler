@@ -1,4 +1,6 @@
 # Project Assembler
+![Assembler](misc/logo.png)
+@image latex logo.png 
 A Simplified MIPS Assembler for CSC3050.
 ## Introduction
 THis is simple but efficient parallel parser for MIPS assembly language. It uses the `absiel-cpp` library for efficient 
