@@ -55,3 +55,11 @@ Options:
   -o,--output TEXT            output path
 ```
 if input or output is not given, it may use the standard ones. If so, remember to end your input with EOF (Ctrl-D).
+
+## How to test
+First, you are recommended to build the project with `-DCMAKE_BUILD_TYPE=Debug` to get more messages.
+
+Second, just enter the following commands (in your build directory):
+```bash
+ctest
+```
