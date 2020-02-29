@@ -15,11 +15,11 @@
  * the instruction name
  * @return the instruction value
  */
-FAST_PATH Instruction generate_J(const char *inst) {
+FAST_PATH Instruction generate_J(std::string_view inst) {
     if (unlikely(inst[0] != 'j')) {
         throw parse_error(absl::StrCat("not a valid J instruction: ", line));
     }
-    if (inst[1] == 0) {
+    if (inst.size() == 1) {
         uint32_t a;
         try {
             a = parse_num<uint32_t>();
@@ -35,7 +35,7 @@ FAST_PATH Instruction generate_J(const char *inst) {
                 }
         };
     }
-    if (strcmp(inst + 1, "al") == 0) {
+    if (strcmp(inst.begin() + 1, "al") == 0) {
         uint32_t a;
         try {
             a = parse_num<uint32_t>();
@@ -70,8 +70,8 @@ FAST_PATH Instruction parse_J() {
  * @return
  * the checking result
  */
-FAST_PATH bool is_j(const char *w) {
-    return w[0] == 'j' && (w[1] == 0 || (w[1] == 'a' && w[2] == 'l'));
+FAST_PATH bool is_j(std::string_view w) {
+    return w[0] == 'j' && (w.size() == 1 || (w.size() == 3 && w[1] == 'a' && w[2] == 'l'));
 }
 
 #endif //ASSEMBLER_J_H

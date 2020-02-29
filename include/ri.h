@@ -16,7 +16,7 @@ extern const absl::flat_hash_map<std::string, uint8_t> RIMap;
  * @param inst instruction name
  * @return the instruction value
  */
-Instruction generate_RI(const char *inst);
+Instruction generate_RI(std::string_view inst);
 
 /*!
  * Map between R-Type Instructions' names and their format. (name is auto resolved)

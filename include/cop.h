@@ -27,7 +27,7 @@ FAST_PATH bool is_cop(/*! instruction name */ std::string_view inst) {
  * @returns
  * the instruction value
  */
-Instruction generate_COP(/*! instruction name */ const char *inst);
+Instruction generate_COP(/*! instruction name */ std::string_view inst);
 
 /*!
  * [FAST_PATH] Generate a COP instruction according to the current line.

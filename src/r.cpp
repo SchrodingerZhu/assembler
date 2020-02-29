@@ -48,8 +48,8 @@ const absl::flat_hash_map<std::string, RInstruction> RMap = {
         {"tltu",    {0x00, 0x33, {rs, rt, no}}},
 };
 
-Instruction generate_R(const char *inst) {
-    if (std::strcmp(inst, "jalr") == 0) {
+Instruction generate_R(std::string_view inst) {
+    if (std::strcmp(inst.data(), "jalr") == 0) {
         return parse_JALR();
     }
     auto A = RMap.at(inst);

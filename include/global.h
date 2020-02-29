@@ -60,4 +60,12 @@ FAST_PATH void finalize() {
     if (result != &std::cout) delete result;
 }
 
+#if __cplusplus <= 201703L
+
+#include <absl/strings/string_view.h>
+
+namespace std {
+    using string_view = absl::string_view;
+}
+#endif
 #endif //ASSEMBLER_GLOBAL_H

@@ -87,7 +87,7 @@ mod::string cleanup(mod::string a) {
     auto m = absl::StripSuffix(absl::StripAsciiWhitespace(a), "\n");
     mod::string res;
     res.resize(m.length());
-    std::memcpy(res.data(), m.data(), m.length());
+    std::memcpy(const_cast<char *>(res.data()), m.data(), m.length());
     return res;
 }
 
@@ -148,7 +148,7 @@ void parse_label() {
     if (m != nullptr) {
         std::string key;
         key.resize((uintptr_t) m - (uintptr_t) line.data());
-        std::memcpy(key.data(), line.data(), key.size());
+        std::memcpy(const_cast<char *>(key.c_str()), line.data(), key.size());
         for (auto i : key) {
             if (unlikely(!isalnum(i) && !isalpha(i) && i != '_')) {
                 throw parse_error(absl::StrCat("wrong label format (contains invalid character): ", key));
@@ -189,7 +189,7 @@ namespace parser_shared {
     mod::vector<recover> label_queue;
     std::mutex label_queue_mutex{};
     absl::flat_hash_map<mod::string, size_t> labels;
-    std::atomic_bool success = true;
+    std::atomic_bool success{true};
 
     task::task(mod::string content, size_t address, size_t line_count, size_t prefix) :
         content(std::move(content)), address(address), line_count(line_count), prefix(prefix)

@@ -4,7 +4,7 @@
 
 #include <cop.h>
 
-Instruction generate_COP(const char *inst) {
+Instruction generate_COP(std::string_view inst) {
     switch (inst[1]) {
         case 'f': {
             auto t = parse_register();

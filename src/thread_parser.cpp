@@ -45,7 +45,7 @@ void parser_life(std::atomic_size_t &finished) {
 
 void run_parsing() {
     while (parser_shared::fill_queue()) {
-        std::atomic_size_t t = 0;
+        std::atomic_size_t t{0};
         std::vector<std::thread> all;
         for (auto i = 0; i < WORKERS; ++i) {
             all.emplace_back([&] { parser_life(t); });

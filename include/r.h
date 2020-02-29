@@ -58,7 +58,7 @@ extern const absl::flat_hash_map<std::string, RInstruction> RMap;
  * Input the Instruction name and generate the instruction based on the content in the `thread_local` line.
  * @returns the instruction value
  */
-Instruction generate_R(/*! instruction name */const char *inst);
+Instruction generate_R(/*! instruction name */std::string_view inst);
 
 /*!
  * Special Instruction Generator for JAJR
