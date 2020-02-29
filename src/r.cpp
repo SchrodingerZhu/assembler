@@ -11,7 +11,7 @@ const absl::flat_hash_map<std::string, RInstruction> RMap = {
         {"break",   {0b000000, 0b001101, {no, no, no}}},
         {"div",     {0b000000, 0b011010, {rs, rt, no}}},
         {"divu",    {0b000000, 0b011011, {rs, rt, no}}},
-        {"jalr",    {0b000000, 0b001001, {rd, rs, no}}},
+        {"jalr",    {0b000000, 0b001001, {rs, rd, no}}},
         {"jr",      {0b000000, 0b001000, {rs, no, no}}},
         {"mfhi",    {0b000000, 0b010000, {rd, no, no}}},
         {"mflo",    {0b000000, 0b010010, {rd, no, no}}},
@@ -93,12 +93,12 @@ Instruction parse_R() {
 }
 
 Instruction parse_JALR() {
-    uint8_t s = parse_register(), d = 0;
+    uint8_t d = parse_register(), s = 0;
     if (eat_whitespace(), !at_line_end() && peek() == ',') {
-        d = s;
-        s = parse_register(true);
+        s = d;
+        d = parse_register(true);
     } else {
-        d = 31;
+        s = 31;
     }
     return Instruction{
             .INST_R =  {

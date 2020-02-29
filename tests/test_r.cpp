@@ -12,6 +12,4 @@ int main() {
     test_asm(R, "jr $fp", 0x03c00008)
     test_asm(R, "srl $v0, $fp, 5", 0x001e1142)
     test_asm(R, "sub $s4, $s5, $s6", 45522978)
-    test_asm(R, "jalr $v0", 4257801)
-    test_asm(R, "jalr $t0, $v0", 4210697)
 }
