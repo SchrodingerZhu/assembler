@@ -2,7 +2,6 @@
 // Created by schrodinger on 1/10/20.
 //
 #include <test_utils.h>
-
 #define TEST_MODE
 
 #include "thread_parser.h"
@@ -108,7 +107,7 @@ int main() {
     test_block("P1: \n"
                "    add $t0, $t1, $t2\n"
                "P2: addu $sp, $t1, $v0  # comment #\n"
-               "    addi $sp, $sp -8\n"
+               "    addi $sp, $sp, -8\n"
                "    addiu $a0, $v0, 1 # $ra, comment, PPP:\n"
                "    and $v0, $v0, $t6\n"
                "    andi $v0, $v0, -1\n"

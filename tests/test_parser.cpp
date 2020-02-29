@@ -7,7 +7,7 @@ int main() {
         counter = 0;
         assert_eq(std::string(next_word().data()), "add");
         assert_eq(std::string(next_word().data()), "t0");
-        assert_eq(std::string(next_word().data()), "t1");
+        assert_eq(std::string(next_word(true).data()), "t1");
     })
 
     test_case(parse_u8, {

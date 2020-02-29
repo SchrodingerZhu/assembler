@@ -28,7 +28,7 @@ Instruction generate_RI(const char *inst) {
     int16_t offset;
     auto c = counter;
     try {
-        offset = parse_num<int16_t>();
+        offset = parse_num<int16_t>(true);
         if (inst[0] == 'b') {
             offset = ((offset - address) >> 2u) - 1u;
         }

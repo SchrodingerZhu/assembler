@@ -61,16 +61,16 @@ Instruction generate_R(const char *inst) {
     while (n < 3 && A.order[n] != no) {
         switch (A.order[n++]) {
             case rd:
-                d = parse_register();
+                d = parse_register(n > 1);
                 break;
             case rs:
-                s = parse_register();
+                s = parse_register(n > 1);
                 break;
             case rt:
-                t = parse_register();
+                t = parse_register(n > 1);
                 break;
             case sa:
-                S = parse_num<uint8_t>();
+                S = parse_num<uint8_t>(true);
                 break;
             default:
                 unreachable();
@@ -96,7 +96,7 @@ Instruction parse_JALR() {
     uint8_t s = parse_register(), d = 0;
     if (eat_whitespace(), !at_line_end() && peek() == ',') {
         d = s;
-        s = parse_register();
+        s = parse_register(true);
     } else {
         d = 31;
     }

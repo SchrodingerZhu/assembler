@@ -118,6 +118,7 @@ namespace parser_shared {
     extern std::mutex label_queue_mutex;
     /// finished instructions
     extern mod::vector<Instruction> finished;
+
     /*!
      * read new lines and add them to the work queue
      * @return the number of new lines
@@ -132,12 +133,14 @@ namespace parser_shared {
     extern std::atomic_bool success;
     /// an SIMD hashmap for all labels
     extern absl::flat_hash_map<mod::string, size_t> labels;
+
     /*!
      * push the parsed instruction to the current position.
      * @param intr instruction value
      * @param addr instruction line address
      */
     void push_result(const Instruction &intr, size_t addr);
+
     /*!
      * push a job into recover mode to wait for the label
      * @attention the pushing operations will lock the mutex
@@ -145,6 +148,7 @@ namespace parser_shared {
      * @param type label recover type
      */
     void push_label_queue(size_t pos, RecoverType type);
+
     /*!
      * output an error to stderr
      * @attention the output will lock the mutex
@@ -168,29 +172,36 @@ extern thread_local size_t local_prefix;
  * @return the trimmed line
  */
 mod::string cleanup(mod::string t);
+
 /*!
  * eat up all nonsense charactor and ASCII whitespace (by forwarding the line cursor)
  */
 void eat_whitespace();
+
 /*!
  * check whether the given character is a separator (comma or whitespace)
  * @param t the character to check
  * @return the checking result
  */
 bool is_sep(char t);
+
 /*!
  * eat up all separators (comma or whitespace) (by forwarding the line cursor)
+ * @returns number of comma
  */
-void eat_sep();
+size_t eat_sep();
+
 /*!
  * check whether we are at the end of the current line
  * @return the checking result
  */
 bool at_line_end();
+
 /*!
  * retrieve the current character without increasing the cursor
  */
 uint8_t peek();
+
 /*!
  * parse a binary number
  * @attention
@@ -214,6 +225,7 @@ inline T parse_bin() {
     }
     return res;
 }
+
 /*!
  * parse a hexdecimal number
  * @attention
@@ -257,14 +269,18 @@ inline T parse_hex() {
     OUT:
     return res;
 }
+
 /*!
  * parse a number, the format will be recognized automatically
  * @tparam T the type of integer
  * @return the result number
  */
 template<class T>
-inline T parse_num() {
-    eat_sep();
+static inline T parse_num(bool need_comma = false) {
+    auto comma = eat_sep();
+    if (unlikely((need_comma && comma != 1) || (!need_comma && comma > 0) || comma > 1)) {
+        throw parse_error("wrong number of comma");
+    }
     if (at_line_end()) {
         throw parse_error("numerical content expected");
     }
@@ -291,6 +307,7 @@ inline T parse_num() {
     }
     return flag ? -cur : cur;
 };
+
 /*!
  * parse a simple 8-bit integer (used for register name and special immediate values)
  * @return the result number
@@ -315,11 +332,12 @@ std::string get_label(size_t pos, std::string_view content);
  * parse the label and automatically register it (in the hashmap)
  */
 void parse_label();
+
 /*!
  * parse a lexical word, size limited by 10 (which is obviously enough for the tokens)
  * @return the token
  */
-std::array<char, 10> next_word();
+std::array<char, 10> next_word(bool need_comma = false);
 
 /*!
  * a short hand macro for checking the remaining content of the word before retunn the result.
@@ -329,11 +347,12 @@ std::array<char, 10> next_word();
 if(unlikely(x != 10 && reg_name[x] != 0)) \
 { throw parse_error(absl::StrCat("wrong name of ", reg_name.data())); }\
 else return y;}
+
 /*!
  * parse a register name
  * @return the number of the register
  */
-uint8_t parse_register();
+uint8_t parse_register(bool need_comma = false);
 
 
 #endif //ASSEMBLER_PARSER_H

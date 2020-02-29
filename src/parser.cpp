@@ -15,8 +15,8 @@ const char *parse_error::what() const noexcept {
     return msg.c_str();
 }
 
-uint8_t parse_register() {
-    auto reg_name = next_word();
+uint8_t parse_register(bool need_comma) {
+    auto reg_name = next_word(need_comma);
     if (unlikely(reg_name[0] != '$')) {
         throw parse_error(absl::StrCat("syntax error at: ", reg_name.data()));
     }
@@ -99,8 +99,13 @@ bool is_sep(char t) {
     return t <= 32 || t == ',';
 }
 
-void eat_sep() {
-    while (counter < line.size() && is_sep(line[counter])) counter++;
+size_t eat_sep() {
+    size_t number_of_comma = 0;
+    while (counter < line.size() && is_sep(line[counter])) {
+        if (line[counter] == ',') number_of_comma++;
+        counter++;
+    }
+    return number_of_comma;
 }
 
 bool at_line_end() {
@@ -123,7 +128,9 @@ uint8_t parse_next_u8_or_zero() {
 
 std::string get_label(size_t pos, std::string_view content) {
     std::string v;
-    while (is_sep(content[pos])) pos++;
+    while (is_sep(content[pos])) {
+        pos++;
+    }
     if (pos == content.size()) {
         throw parse_error(absl::StrCat("label or address required but not found"));
     }
@@ -154,10 +161,12 @@ void parse_label() {
     }
 }
 
-std::array<char, 10> next_word() {
+std::array<char, 10> next_word(bool need_comma) {
     std::array<char, 10> buf = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
     auto a = 0;
-    eat_sep();
+    auto comma = eat_sep();
+    if (unlikely((need_comma && comma != 1) || (!need_comma && comma > 0) || comma > 1))
+        throw parse_error("wrong number of comma");
     if (unlikely(at_line_end())) {
         throw parse_error(absl::StrCat("next word from end of line: ", line, ", position: ", std::to_string(counter)));
     }

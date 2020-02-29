@@ -10,7 +10,7 @@ IInstruction::IInstruction(uint8_t opcode, std::initializer_list<I_ORDER> order)
     std::memcpy(this->order, order.begin(), 3);
 }
 
-inline uint8_t parse_brs() {
+static inline uint8_t parse_brs() {
     eat_sep();
     if (unlikely(at_line_end() || line[counter++] != '(')) {
         throw parse_error(absl::StrCat("wrong format of instruction: ", line));
@@ -26,8 +26,9 @@ inline uint8_t parse_brs() {
 Instruction generate_I(const char *inst) {
     auto A = IMap.at(inst);
     auto res = Instruction{.INST_I = {.C = 0, .t = 0, .s = 0, .op = A.opcode}};
-    for (auto i : A.order) {
-        switch (i) {
+
+    for (auto i = 0; i < 3; ++i) {
+        switch (A.order[i]) {
             case rt1:
             case rt0x11:
             case rt0x10:
@@ -35,13 +36,13 @@ Instruction generate_I(const char *inst) {
             case rt0xe:
             case rt8:
             case rt9:
-                res.INST_I.t = i;
+                res.INST_I.t = A.order[i];
                 break;
             case rt_:
-                res.INST_I.t = parse_register();
+                res.INST_I.t = parse_register(i > 0 && A.order[i - 1] > 1);
                 break;
             case rs_:
-                res.INST_I.s = parse_register();
+                res.INST_I.s = parse_register(i > 0 && A.order[i - 1] > 1);
                 break;
             case imm:
                 solve_imm(res, inst);
@@ -96,7 +97,7 @@ const absl::flat_hash_map<std::string, IInstruction> IMap = {
 void solve_imm(Instruction &res, const char *inst) {
     auto s = counter;
     try {
-        res.INST_I.C = parse_num<int16_t>();
+        res.INST_I.C = parse_num<int16_t>(true);
     }
     catch (const parse_error &e) {
         if (inst[0] == 'b') {

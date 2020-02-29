@@ -58,6 +58,9 @@ void run_parsing() {
     parser_recover();
 }
 
+#pragma clang diagnostic push
+#pragma ide diagnostic ignored "openmp-use-default-none"
+
 void parser_recover() {
     using namespace parser_shared;
 #pragma omp parallel for schedule(guided) default(shared)
@@ -90,6 +93,8 @@ void parser_recover() {
         }
     }
 }
+
+#pragma clang diagnostic pop
 
 bool test_flag = false;
 
