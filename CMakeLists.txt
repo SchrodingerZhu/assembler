@@ -15,6 +15,6 @@ add_library(parsing STATIC include/j.h include/i.h src/i.cpp include/r.h src/r.c
 add_library(thread_parser STATIC src/thread_parser.cpp include/thread_parser.h)
 target_link_libraries(meta PUBLIC mimalloc-static)
 target_link_libraries(parsing PUBLIC meta ${ABSL_LIBS})
-target_link_libraries(thread_parser PUBLIC parsing Threads::Threads OpenMP)
+target_link_libraries(thread_parser PUBLIC parsing Threads::Threads)
 target_link_libraries(assembler parsing thread_parser)
 include(tests/tests.cmake)

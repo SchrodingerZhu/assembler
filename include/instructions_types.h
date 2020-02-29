@@ -19,7 +19,7 @@ union Instruction {
                 f: 6,
                 S: 5,
                 d: 5,
-                t:5,
+                t: 5,
                 s: 5,
                 op: 6;
     } INST_R;
