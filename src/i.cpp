@@ -85,10 +85,12 @@ const absl::flat_hash_map<std::string, IInstruction> IMap = {
         {"sw",    {0b101011, {rt_, imm, brs}}},
         {"swc1",  {0b111001, {rt_, imm, brs}}},
         {"xori",  {0b001110, {rt_, rs_, imm}}},
-        {"lwl",    {0x22, {rt_, imm, brs}}},
-        {"lwr",    {0x26, {rt_, imm, brs}}},
-        {"swl",    {0x2a, {rt_, imm, brs}}},
-        {"swr",    {0x2e, {rt_, imm, brs}}},
+        {"lwl",   {0x22,     {rt_, imm, brs}}},
+        {"lwr",   {0x26,     {rt_, imm, brs}}},
+        {"ll",    {0x30,     {rt_, imm, brs}}},
+        {"sc",    {0x38,     {rt_, imm, brs}}},
+        {"swl",   {0x2a,     {rt_, imm, brs}}},
+        {"swr",   {0x2e,     {rt_, imm, brs}}},
 };
 
 void solve_imm(Instruction &res, const char *inst) {
