@@ -65,3 +65,11 @@ Second, just enter the following commands (in your build directory):
 ```bash
 ctest
 ```
+
+The testing contents are the followings:
+- Basic register names, numbers, words, labels
+- Basic I-Type lines
+- Basic J-Type lines
+- Basic R-Type lines
+- Basic RI-Type lines
+- Sample block test

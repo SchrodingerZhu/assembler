@@ -58,6 +58,7 @@ int main() {
     SHOULD_FAIL(TEST_REGISTER("$t10", 0))
     SHOULD_FAIL(TEST_REGISTER("$miku", 0))
     SHOULD_FAIL(TEST_REGISTER("$nico", 0))
+    SHOULD_FAIL(TEST_REGISTER("v3", 0))
     SHOULD_FAIL(TEST_REGISTER("$zerok", 0))
     return 0;
 }
