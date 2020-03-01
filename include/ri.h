@@ -9,8 +9,10 @@
 #include "instructions_types.h"
 #include "parser.h"
 #include <absl/container/flat_hash_map.h>
+
 /// Map between RI-Type Instructions' names and their format
 extern const absl::flat_hash_map<std::string, uint8_t> RIMap;
+
 /*!
  * Generate a RI-Type Instruction based on the current thread local line.
  * @param inst instruction name

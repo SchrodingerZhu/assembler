@@ -9,6 +9,7 @@ thread_local size_t counter = 0;
 thread_local size_t address = 0x400000;
 thread_local size_t local_line = 0;
 thread_local size_t local_prefix = 0;
+
 parse_error::parse_error(std::string str) : msg(std::move(str)) {}
 
 const char *parse_error::what() const noexcept {
@@ -25,8 +26,8 @@ uint8_t parse_register(bool need_comma) {
     }
     switch (reg_name[1]) {
         case 'v': {
-            if (reg_name[2] == '0') CHECK_AND_RETURN(3, 2);
-            if (reg_name[2] == '1') CHECK_AND_RETURN(3, 3);
+            if (reg_name[2] == '0') CHECK_AND_RETURN(3, 2)
+            if (reg_name[2] == '1') CHECK_AND_RETURN(3, 3)
             break;
         }
         case 'a': {
@@ -55,8 +56,8 @@ uint8_t parse_register(bool need_comma) {
             break;
         }
         case 'k': {
-            if (reg_name[2] == '0') CHECK_AND_RETURN(3, 26);
-            if (reg_name[2] == '1') CHECK_AND_RETURN(3, 27);
+            if (reg_name[2] == '0') CHECK_AND_RETURN(3, 26)
+            if (reg_name[2] == '1') CHECK_AND_RETURN(3, 27)
             break;
         }
         case 'z': {
@@ -75,9 +76,9 @@ uint8_t parse_register(bool need_comma) {
             if (reg_name[2] == 'a') CHECK_AND_RETURN(3, 31)
             break;
         }
+        default:
+            throw parse_error(absl::StrCat("unable to resolve register name: ", reg_name.data()));
     }
-
-    throw parse_error(absl::StrCat("unable to resolve register name: ", reg_name.data()));
 }
 
 mod::string cleanup(mod::string a) {
@@ -192,8 +193,8 @@ namespace parser_shared {
     std::atomic_bool success{true};
 
     task::task(mod::string content, size_t address, size_t line_count, size_t prefix) :
-        content(std::move(content)), address(address), line_count(line_count), prefix(prefix)
-    {};
+            content(std::move(content)), address(address), line_count(line_count), prefix(prefix) {}
+
     size_t fill_queue() {
         job_queue.clear();
         bool flag = false;
@@ -203,7 +204,7 @@ namespace parser_shared {
             std::getline(*source, buf);
             global_line_count++;
             size_t prefix = 0;
-            while(prefix < buf.size() && buf[prefix] == ' ') prefix++;
+            while (prefix < buf.size() && buf[prefix] == ' ') prefix++;
             mod::string real = cleanup(std::move(buf));
             if (real.empty()) continue;
             if (real[real.size() - 1] == ':') {
@@ -218,7 +219,7 @@ namespace parser_shared {
             job_queue.emplace_back(std::move(real), global_address, global_line_count, prefix);
             global_address += 4;
         }
-        if (job_queue.size())
+        if (!job_queue.empty())
             finished.resize(job_queue.size() + finished.size());
         return job_queue.size();
     }
@@ -246,5 +247,5 @@ namespace parser_shared {
     }
 
     recover::recover(std::string line, size_t addr, size_t pos, RecoverType type, size_t line_count, size_t prefix)
-            : line(std::move(line)), addr(addr), pos(pos), type(type), line_count(line_count),  prefix(prefix){}
+            : line(std::move(line)), addr(addr), pos(pos), type(type), line_count(line_count), prefix(prefix) {}
 }

@@ -54,17 +54,19 @@ struct IInstruction {
     uint8_t opcode : 6;
     /// register parsing order
     I_ORDER order[3]{};
+
     /*!
      * construct I-Type format
      */
-    IInstruction(/*! operation code */uint8_t opcode, /*! register parsing order */std::initializer_list<I_ORDER> order);
+    IInstruction(/*! operation code */uint8_t opcode, /*! register parsing order */
+                                      std::initializer_list<I_ORDER> order);
 };
 
 /*!
  * Solve immediate label address later by pushing the instruction into waiting queue.
  * @attention the pushing operation involves mutex lock
  */
-void solve_imm(/*! current instruction content*/ Instruction & inst, /*! instruction name */ const char *name);
+void solve_imm(/*! current instruction content*/ Instruction &inst, /*! instruction name */ const char *name);
 
 /*!
  * Generate an I-Type Instruction based on the current `thread_local` line.

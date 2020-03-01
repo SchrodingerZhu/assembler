@@ -27,5 +27,5 @@ Instruction generate_COP(std::string_view inst) {
             return ERET;
         default:
             unreachable();
-    };
+    }
 }

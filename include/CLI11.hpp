@@ -106,7 +106,7 @@
 #if defined(CLI11_CPP14)
 #define CLI11_DEPRECATED(reason) [[deprecated(reason)]]
 #elif defined(_MSC_VER)
-                                                                                                                        #define CLI11_DEPRECATED(reason) __declspec(deprecated(reason))
+#define CLI11_DEPRECATED(reason) __declspec(deprecated(reason))
 #else
 #define CLI11_DEPRECATED(reason) __attribute__((deprecated(reason)))
 #endif
@@ -207,9 +207,9 @@ namespace CLI {
 #if CLI11_STD_OPTIONAL
     using std::optional;
 #elif CLI11_EXPERIMENTAL_OPTIONAL
-                                                                                                                            using std::experimental::optional;
+    using std::experimental::optional;
 #elif CLI11_BOOST_OPTIONAL
-using boost::optional;
+    using boost::optional;
 #endif
 
 // This is true if any optional is found
