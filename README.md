@@ -44,6 +44,17 @@ cmake --build . --parallel $(nproc) # compile the project
 ```
 - enjoy playing with the assembler
 
+## Important
+ It has been tested, the GCC on Ubuntu 16.04 has bug on thread_local linkage.
+ One possible workaround is to use clang.
+```c++
+ apt update
+ apt install clang-6.0 
+ mkdir build && cd build
+ env CC=clang-6.0 CXX=clang-6.0 cmake .. -DCMAKE_BUILD_TYPE=Release
+ cmake --build . -j $(nproc)
+``` 
+
 ## How to Use
 type `./assember -h` and it will tell you all:
 ```bash

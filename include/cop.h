@@ -6,7 +6,6 @@
 
 #include "global.h"
 #include <cctype>
-#include <string_view>
 #include "instructions_types.h"
 #include "parser.h"
 

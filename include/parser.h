@@ -15,7 +15,6 @@
 #include <cstdio>
 #include <absl/strings/strip.h>
 #include <queue>
-#include <optional>
 #include <absl/container/flat_hash_map.h>
 #include <instructions_types.h>
 
