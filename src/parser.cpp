@@ -79,6 +79,7 @@ uint8_t parse_register(bool need_comma) {
         default:
             throw parse_error(absl::StrCat("unable to resolve register name: ", reg_name.data()));
     }
+    throw parse_error(absl::StrCat("unable to resolve register name: ", reg_name.data()));
 }
 
 mod::string cleanup(mod::string a) {

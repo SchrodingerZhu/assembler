@@ -3,7 +3,7 @@
 @image latex logo.png 
 A Simplified MIPS Assembler for CSC3050.
 ## Introduction
-THis is simple but efficient parallel parser for MIPS assembly language. It uses the `absiel-cpp` library for efficient 
+This is simple but efficient parallel parser for MIPS assembly language. It uses the `absiel-cpp` library for efficient 
 string operations and the `mimalloc` library to improve the efficiency of parallel frequent memory allocation. It supports the
 whole set of MIPS 2000 assembly language, except for pseudo instructions and all instructions involved coprocessor operations.
 Labels are also supported

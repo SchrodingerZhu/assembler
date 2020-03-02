@@ -6,10 +6,8 @@
 #define ASSEMBLER_GLOBAL_H
 
 #include <cstdint>
-#include <string_view>
 #include <string>
 #include <iostream>
-#include <memory_resource>
 #include <memory>
 #include <fstream>
 #include <thread>
@@ -67,5 +65,7 @@ FAST_PATH void finalize() {
 namespace std {
     using string_view = absl::string_view;
 }
+#else
+#include <string_view>
 #endif
 #endif //ASSEMBLER_GLOBAL_H
