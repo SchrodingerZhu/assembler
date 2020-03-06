@@ -32,7 +32,7 @@ Result generate_result(std::string path) {
 }
 
 ErrorStream::~ErrorStream() {
-    std::cout.rdbuf(old); // reverse redirect
+    std::cerr.rdbuf(old); // reverse redirect
 }
 
 ErrorStream::ErrorStream() {
