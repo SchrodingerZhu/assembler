@@ -14,6 +14,7 @@ void test_block(const std::string &content, std::vector<uint32_t> expected) {
     parser_shared::finished.clear();
     parser_shared::labels.clear();
     parser_shared::label_queue.clear();
+    parser_shared::global_line_count = 0;
     std::istringstream input_stream(content);
     source = &input_stream;
     std::clog << "testing asm block #" << BLOCK_TEST_NUM++ << ": ";
@@ -29,7 +30,8 @@ void test_block(const std::string &content, std::vector<uint32_t> expected) {
 
 int main() {
     test_mode(true);
-    test_block("R:\tadd $s0, $s1, $s2\t#r instructions\n"
+    test_block(".text\n"
+               "R:\tadd $s0, $s1, $s2\t#r instructions\n"
                "\taddu $s0, $s1, $s2\n"
                "\tsub $s0, $s1, $s2\n"
                "\tsubu $s0, $s1, $s2\n"
@@ -105,7 +107,15 @@ int main() {
                        0b00001000000000000000000000010011,
                        0b00001100000000000000000000000000,
                });
-    test_block("P1: \n"
+    test_block(".data\n"
+               "prompt_m: .asciiz   \"m=\"\n"
+               "prompt_n: .asciiz   \"n=\"\n"
+               "msg1:   .asciiz   \"Ackermann(\"\n"
+               "msg2:   .asciiz   \")=\"\n"
+               "comma:  .asciiz \",\"   \n"
+               "endl:   .asciiz   \"\\n\"\n"
+               ".text\n"
+               "P1: \n"
                "    add $t0, $t1, $t2\n"
                "P2: addu $sp, $t1, $v0  # comment #\n"
                "    addi $sp, $sp, -8\n"
@@ -324,4 +334,10 @@ int main() {
                 0b00000000000000001110100000010010,
                 0b00000001000000000000000000010001,
                 0b00000000010000000000000000010011,});
+    test_case(data_part, {
+        auto data = generate_data();
+        for (auto i : data) {
+            std::cout << i << std::endl;
+        }
+    })
 }

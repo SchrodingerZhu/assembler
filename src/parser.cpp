@@ -4,6 +4,8 @@
 
 #include <parser.h>
 
+#include <utility>
+
 thread_local mod::string line = {};
 thread_local size_t counter = 0;
 thread_local size_t address = 0x400000;
@@ -192,6 +194,8 @@ namespace parser_shared {
     std::mutex label_queue_mutex{};
     absl::flat_hash_map<mod::string, size_t> labels;
     std::atomic_bool success{true};
+    std::vector<data_job> data_queue{};
+    size_t data_index = 0;
 
     task::task(mod::string content, size_t address, size_t line_count, size_t prefix) :
             content(std::move(content)), address(address), line_count(line_count), prefix(prefix) {}
@@ -199,30 +203,51 @@ namespace parser_shared {
     size_t fill_queue() {
         job_queue.clear();
         bool flag = false;
+        Section state = NONE;
         std::string buffer{};
-        while (source->good() && job_queue.size() < QUEUE_SIZE) {
-            mod::string buf;
-            std::getline(*source, buf);
-            global_line_count++;
-            size_t prefix = 0;
-            while (prefix < buf.size() && buf[prefix] == ' ') prefix++;
-            mod::string real = cleanup(std::move(buf));
-            if (real.empty()) continue;
-            if (real[real.size() - 1] == ':') {
-                buffer = std::move(real);
-                flag = true;
-                continue;
+        try {
+            while (source->good() && job_queue.size() < QUEUE_SIZE) {
+                mod::string buf;
+                std::getline(*source, buf);
+                global_line_count++;
+                size_t prefix = 0;
+                while (prefix < buf.size() && buf[prefix] == ' ') prefix++;
+                mod::string real = cleanup(std::move(buf));
+                if (real.empty()) continue;
+                if (real == ".data") {
+                    state = DATA;
+                    continue;
+                } else if (real == ".text") {
+                    state = TEXT;
+                    continue;
+                }
+                switch (state) {
+                    case NONE:
+                        throw parse_error{"expected section identifier at line " + std::to_string(global_line_count)};
+                    case DATA:
+                        data_queue.emplace_back(global_line_count, prefix, real, data_index++);
+                        continue;
+                    default:
+                        if (real[real.size() - 1] == ':') {
+                            buffer = std::move(real);
+                            flag = true;
+                            continue;
+                        }
+                        if (flag) {
+                            flag = false;
+                            real = absl::StrCat(buffer, real);
+                        }
+                        job_queue.emplace_back(std::move(real), global_address, global_line_count, prefix);
+                        global_address += 4;
+                }
             }
-            if (flag) {
-                flag = false;
-                real = absl::StrCat(buffer, real);
-            }
-            job_queue.emplace_back(std::move(real), global_address, global_line_count, prefix);
-            global_address += 4;
+            if (!job_queue.empty())
+                finished.resize(job_queue.size() + finished.size());
+            return job_queue.size();
+        } catch (const parse_error &e) {
+            std::cerr << "[ERROR]" << "line " << global_line_count << ": " << e.msg << std::endl;
+            exit(1);
         }
-        if (!job_queue.empty())
-            finished.resize(job_queue.size() + finished.size());
-        return job_queue.size();
     }
 
     mod::vector<Instruction> finished;
@@ -249,4 +274,11 @@ namespace parser_shared {
 
     recover::recover(std::string line, size_t addr, size_t pos, RecoverType type, size_t line_count, size_t prefix)
             : line(std::move(line)), addr(addr), pos(pos), type(type), line_count(line_count), prefix(prefix) {}
+
+    data_job::data_job(size_t line_count, size_t prefix, mod::string content, size_t index) : line_count(line_count),
+                                                                                              prefix(prefix),
+                                                                                              content(std::move(
+                                                                                                      content)),
+                                                                                              index(index) {}
+
 }

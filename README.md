@@ -40,7 +40,7 @@ sudo apt-get -y install gcc-9 cmake
 mkdir build # create a new directory to build
 cd build # enter the empty directory
 cmake .. -DCMAKE_BUILD_TYPE=Release # generate the makefiles
-cmake --build . --parallel $(nproc) # compile the project
+make -j $(nproc) # compile the project
 ```
 - enjoy playing with the assembler
 
@@ -49,10 +49,10 @@ cmake --build . --parallel $(nproc) # compile the project
  One possible workaround is to use clang.
 ```c++
  apt update
- apt install clang-6.0 
+ apt install clang-6.0 libomp-dev libomp5 
  mkdir build && cd build
  env CC=clang-6.0 CXX=clang-6.0 cmake .. -DCMAKE_BUILD_TYPE=Release
- cmake --build . -j $(nproc)
+ make -j $(nproc)
 ``` 
 
 ## How to Use

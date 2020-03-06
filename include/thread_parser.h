@@ -1,3 +1,5 @@
+#pragma clang diagnostic push
+#pragma ide diagnostic ignored "openmp-use-default-none"
 //
 // Created by schrodinger on 1/10/20.
 //
@@ -10,6 +12,8 @@
 #include <ri.h>
 #include <cop.h>
 #include <j.h>
+#include <thread>
+#include <data.h>
 #include <i.h>
 
 /// a flag to represent whether the assembler is in a test mode
@@ -36,4 +40,10 @@ void test_mode(bool);
  */
 void run_parsing();
 
+/*!
+ * generate the data vector
+ */
+std::vector<char> generate_data();
 #endif //ASSEMBLER_THREAD_PARSER_H
+
+#pragma clang diagnostic pop

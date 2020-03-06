@@ -101,3 +101,25 @@ bool test_flag = false;
 void test_mode(bool flag) {
     test_flag = flag;
 }
+
+std::vector<char> generate_data() {
+    using namespace parser_shared;
+    std::atomic_size_t current_index{0};
+    std::vector<char> data;
+
+    for (int i = 0; i < data_queue.size(); ++i) {
+        try {
+            auto t = solve_line(data_queue[i]);
+            while (current_index != i) {
+                std::this_thread::yield();
+            }
+            auto old_size = data.size();
+            data.resize(data.size() + t.size());
+            std::memcpy(data.data() + old_size, t.begin(), t.size());
+            current_index++;
+        } catch (const parse_error &t) {
+            output_error(t, data_queue[i].line_count, data_queue[i].prefix);
+        }
+    }
+    return data;
+}

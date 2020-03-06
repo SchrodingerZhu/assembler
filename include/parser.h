@@ -17,6 +17,9 @@
 #include <queue>
 #include <absl/container/flat_hash_map.h>
 #include <instructions_types.h>
+enum Section {
+    NONE, TEXT, DATA
+};
 
 /*!
  * Represents all the expection that may happen during the parsing procedure
@@ -37,6 +40,26 @@ struct parse_error : std::exception {
  * All the contents will the shared across parsing threads.
  */
 namespace parser_shared {
+    extern size_t data_index;
+
+    /*!
+     * Stands for data section jobs
+     */
+    struct data_job {
+        /// line number
+        size_t line_count{};
+        /// line start position
+        size_t prefix{};
+        /// line content
+        mod::string content;
+        /// data index
+        size_t index;
+
+        data_job(size_t line_count, size_t prefix, mod::string content, size_t index = 0);
+    };
+
+    extern std::vector<data_job> data_queue;
+
     /*!
      * Stands for a single line parsing task.
      */
