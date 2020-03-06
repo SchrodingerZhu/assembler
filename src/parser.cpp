@@ -246,7 +246,8 @@ namespace parser_shared {
             return job_queue.size();
         } catch (const parse_error &e) {
             std::cerr << "[ERROR]" << "line " << global_line_count << ": " << e.msg << std::endl;
-            exit(1);
+            success = false;
+            return 0;
         }
     }
 
