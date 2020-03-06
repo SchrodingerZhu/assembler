@@ -80,11 +80,52 @@ void fold_string(Data &data, std::string_view literals) {
     }
 }
 
+std::array<std::string_view, 3> split(size_t line_count, std::string_view single_line) {
+    int current_start{0};
+    int index = 0;
+    int in_sep = false;
+    int section = 0;
+    std::array<std::string_view, 3> result;
+    for (int i = 0; i < single_line.size(); ++i) {
+        if (in_sep) {
+            if (single_line[i] != ' ' && single_line[i] != '\t') {
+                in_sep = false;
+                current_start = i;
+                if (index == 2 && (single_line[i] == '\'' || single_line[i] == '"')) {
+                    section = single_line[i];
+                }
+            } else continue;
+        }
+        if (index < 2) {
+            if (single_line[i] != ' ' && single_line[i] != '\t') continue;
+            else {
+                result[index] = single_line.substr(current_start, i - current_start);
+                in_sep = true;
+                index++;
+            }
+        } else {
+            if (!section && (single_line[i] == '\n' || single_line[i] == '\t')) goto ERROR;
+            if ((section && single_line[i] != section) || i != single_line.size() - 1)
+                continue;
+            else {
+                result[index] = single_line.substr(current_start, i - current_start + 1);
+                in_sep = true;
+                index++;
+            }
+        }
+    }
+    if (index != 3) {
+        ERROR:
+        throw parse_error{absl::StrCat("line ", std::to_string(line_count), ": wrong data format")};
+    }
+    return result;
+}
+
 Data solve_line(const parser_shared::data_job &job) {
     int i = 0;
     DATA_TYPE type;
     Data result;
-    for (auto &cc : absl::StrSplit(job.content, ' ')) {
+    for (auto &cc : split(job.line_count, job.content)) {
         auto c = absl::StripAsciiWhitespace(cc);
         if (c.empty()) continue;
         i += 1;
@@ -138,13 +179,9 @@ Data solve_line(const parser_shared::data_job &job) {
                 }
                 break;
             default:
-                goto ERROR;
+                throw parse_error{absl::StrCat("line ", std::to_string(job.line_count), ", pos ",
+                                               std::to_string(job.prefix), ": wrong format")};
         }
-    }
-    if (unlikely(i != 3)) {
-        ERROR:
-        throw parse_error{absl::StrCat("line ", std::to_string(job.line_count), ", pos ",
-                                       std::to_string(job.prefix), ": wrong format")};
     }
     return result;
 }

@@ -10,6 +10,7 @@
 #include <absl/container/flat_hash_map.h>
 #include <absl/strings/str_split.h>
 #include <absl/container/inlined_vector.h>
+#include <array>
 
 enum DATA_TYPE {
     ASCII, ASCIIZ, HALFWORD, WORD, BYTE, SPACE
