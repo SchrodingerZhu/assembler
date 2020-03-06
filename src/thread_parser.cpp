@@ -106,7 +106,7 @@ std::vector<char> generate_data() {
     using namespace parser_shared;
     std::atomic_size_t current_index{0};
     std::vector<char> data;
-
+#pragma omp parallel for
     for (int i = 0; i < data_queue.size(); ++i) {
         try {
             auto t = solve_line(data_queue[i]);
@@ -119,6 +119,7 @@ std::vector<char> generate_data() {
             current_index++;
         } catch (const parse_error &t) {
             output_error(t, data_queue[i].line_count, data_queue[i].prefix);
+            success = false;
         }
     }
     return data;
