@@ -148,12 +148,14 @@ Data solve_line(const parser_shared::data_job &job) {
                     case ASCII: {
                         auto data = check_string(job.line_count, job.prefix, c);
                         fold_string(result, data);
+                        result.resize(result.size() + 4 - (result.size() & 3u), 0);
                     }
                         break;
                     case ASCIIZ: {
                         auto data = check_string(job.line_count, job.prefix, c);
                         fold_string(result, data);
                         result.push_back(0);
+                        result.resize(result.size() + 4 - (result.size() & 3u), 0);
                     }
                         break;
                     case HALFWORD:

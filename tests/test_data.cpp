@@ -74,7 +74,7 @@ int main() {
 
     test_case(parse_ascii, {
         auto data = solve_line(data_job{0, 0, "a: .ascii \"123\""});
-        assert_eq(data.size(), 3);
+        assert_eq(data.size(), 4);
         char c = data[0];
         assert_eq(c, '1');
         c = data[1];
@@ -84,7 +84,7 @@ int main() {
     })
     test_case(parse_asciiz, {
         auto data = solve_line(data_job{0, 0, "a: .asciiz \"123   abc\""});
-        assert_eq(data.size(), 10);
+        assert_eq(data.size(), 12);
         assert_eq(strcmp(data.begin(), "123   abc"), 0);
     })
     test_case(parse_char_A, {
