@@ -75,23 +75,25 @@ inline T parse_dec(bool flag, size_t line_count, size_t prefix, std::string_view
 
 template<class T>
 void parse_numeric(Data &data, size_t line_count, size_t prefix, std::string_view content) {
-    data.resize(sizeof(T));
+    data.resize(data.size() + sizeof(T));
+    auto position = data.end() - sizeof(T);
     auto shift = content.size() > 1 && content.front() == '-';
     if (content.front() == '\'' && content.back() == '\'') {
         Data temp;
         fold_string(temp, content.substr(1, content.size() - 2));
         if (temp.size() != 1) { throw parse_error{"wrong character"}; }
-        ::new(data.begin()) T(temp[0]);
+        ::new(position) T(temp[0]);
     } else if (content.size() > 2 + shift && content[0 + shift] == '0' && content[1 + shift] == 'x') {
-        ::new(data.begin()) T(parse_hex<T>(shift, line_count, prefix, content.substr(2 + shift)));
+        ::new(position) T(parse_hex<T>(shift, line_count, prefix, content.substr(2 + shift)));
     } else if (content.size() > 2 + shift && content[0 + shift] == '0' && content[1 + shift] == 'b') {
-        ::new(data.begin()) T(parse_bin<T>(shift, line_count, prefix, content.substr(2 + shift)));
+        ::new(position) T(parse_bin<T>(shift, line_count, prefix, content.substr(2 + shift)));
     } else {
-        ::new(data.begin()) T(parse_dec<T>(shift, line_count, prefix, content.substr(shift)));
+        ::new(position) T(parse_dec<T>(shift, line_count, prefix, content.substr(shift)));
     }
 }
 
 Data solve_line(const parser_shared::data_job &job);
 
+std::vector<std::string_view> split(size_t line_count, std::string_view single_line);
 
 #endif //ASSEMBLER_DATA_H

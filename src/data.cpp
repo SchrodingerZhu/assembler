@@ -80,51 +80,76 @@ void fold_string(Data &data, std::string_view literals) {
     }
 }
 
-std::array<std::string_view, 3> split(size_t line_count, std::string_view single_line) {
+static inline bool separator(char t) {
+    return t == ' ' || t == ',' || t == '\t';
+}
+
+std::vector<std::string_view> split(size_t line_count, std::string_view single_line) {
     int current_start{0};
     int index = 0;
-    int in_sep = false;
+    bool in_sep = false;
     int section = 0;
-    std::array<std::string_view, 3> result;
+    int comma = 0;
+    bool flag = false;
+    std::vector<std::string_view> split_result;
     for (int i = 0; i < single_line.size(); ++i) {
         if (in_sep) {
-            if (single_line[i] != ' ' && single_line[i] != '\t') {
+            if (!separator(single_line[i])) {
                 in_sep = false;
                 current_start = i;
-                if (index == 2 && (single_line[i] == '\'' || single_line[i] == '"')) {
+                if (index >= 2 && (single_line[i] == '\'' || single_line[i] == '"')) {
                     section = single_line[i];
+                    flag = true;
                 }
-            } else continue;
+                if (index != 2 && section == '\"') goto ERROR;
+            } else {
+                if (single_line[i] == ',') comma += 1;
+                continue;
+            }
         }
         if (index < 2) {
-            if (single_line[i] != ' ' && single_line[i] != '\t') continue;
+            if (!separator(single_line[i])) continue;
+            else if (comma) goto ERROR;
             else {
-                result[index] = single_line.substr(current_start, i - current_start);
+                split_result.push_back(single_line.substr(current_start, i - current_start));
                 in_sep = true;
+                comma = (single_line[i] == ',');
                 index++;
             }
         } else {
-            if (!section && (single_line[i] == '\n' || single_line[i] == '\t')) goto ERROR;
-            if ((section && single_line[i] != section) || i != single_line.size() - 1)
+            if (i == single_line.size() - 1 || (!flag && section == single_line[i])) {
+                i += 1;
+                if (i != single_line.size() && !separator(single_line[i])) goto ERROR;
+                goto REAL;
+            }
+            if (section || !separator(single_line[i])) {
+                flag = (single_line[i] == '\\');
                 continue;
-            else {
-                result[index] = single_line.substr(current_start, i - current_start + 1);
+            } else {
+                REAL:
+                if ((index == 2 && comma != 0) || (index > 3 && comma != 1)) {
+                    goto ERROR;
+                }
+                split_result.push_back(single_line.substr(current_start, i - current_start));
                 in_sep = true;
+                flag = false;
+                comma = i != single_line.size() && (single_line[i] == ',');
                 index++;
+                section = 0;
             }
         }
     }
-    if (index != 3) {
+    if (section) {
         ERROR:
         throw parse_error{absl::StrCat("line ", std::to_string(line_count), ": wrong data format")};
     }
-    return result;
+    return split_result;
 }
 
 Data solve_line(const parser_shared::data_job &job) {
     int i = 0;
     DATA_TYPE type;
-    Data result;
+    Data line_result;
     for (auto &cc : split(job.line_count, job.content)) {
         auto c = absl::StripAsciiWhitespace(cc);
         if (c.empty()) continue;
@@ -143,49 +168,48 @@ Data solve_line(const parser_shared::data_job &job) {
                 }
                 type = data_types[c];
                 break;
-            case 3:
+            default:
                 switch (type) {
                     case ASCII: {
                         auto data = check_string(job.line_count, job.prefix, c);
-                        fold_string(result, data);
-                        if (result.size() & 3u) result.resize(result.size() + 4 - (result.size() & 3u), 0);
+                        fold_string(line_result, data);
+
                     }
                         break;
                     case ASCIIZ: {
                         auto data = check_string(job.line_count, job.prefix, c);
-                        fold_string(result, data);
-                        result.push_back(0);
-                        if (result.size() & 3u) result.resize(result.size() + 4 - (result.size() & 3u), 0);
+                        fold_string(line_result, data);
+                        line_result.push_back(0);
+
                     }
                         break;
                     case HALFWORD:
-                        parse_numeric<int16_t>(result, job.line_count, job.prefix, c);
+                        parse_numeric<int16_t>(line_result, job.line_count, job.prefix, c);
                         break;
                     case WORD:
-                        parse_numeric<int32_t>(result, job.line_count, job.prefix, c);
+                        parse_numeric<int32_t>(line_result, job.line_count, job.prefix, c);
                         break;
                     case BYTE:
-                        parse_numeric<char>(result, job.line_count, job.prefix, c);
+                        parse_numeric<char>(line_result, job.line_count, job.prefix, c);
                         break;
                     case SPACE: {
-                        parse_numeric<int32_t>(result, job.line_count, job.prefix, c);
-                        int32_t number = *reinterpret_cast<int32_t *>(result.begin());
+                        parse_numeric<int32_t>(line_result, job.line_count, job.prefix, c);
+                        int32_t number = *reinterpret_cast<int32_t *>(line_result.begin());
                         if (number <= 0) {
                             throw parse_error{absl::StrCat("line ", std::to_string(job.line_count), ", pos ",
                                                            std::to_string(job.prefix),
                                                            ": space size must be positive")};
                         }
-                        result.resize(number, 0);
+                        line_result.resize(number, 0);
                     }
                         break;
                 }
                 break;
-            default:
-                throw parse_error{absl::StrCat("line ", std::to_string(job.line_count), ", pos ",
-                                               std::to_string(job.prefix), ": wrong format")};
         }
     }
-    return result;
+    if (line_result.size() & 3u)
+        line_result.resize(line_result.size() + 4 - (line_result.size() & 3u), 0);
+    return line_result;
 }
 
 std::string_view check_string(size_t line_count, size_t prefix, std::string_view content) {

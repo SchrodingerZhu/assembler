@@ -4,6 +4,21 @@
 using namespace parser_shared;
 
 int main() {
+
+
+    test_case(split_0, {
+        auto data = split(0, "test: .word 1, 2, 3");
+        assert_eq(data.size(), 5);
+    })
+
+    test_case(split_0, {
+        auto data = split(0, "test: .word 112,'2',3");
+        assert_eq(data.size(), 5);
+        assert(data[2] == "112");
+        assert(data[3] == "\'2\'");
+        assert(data[4] == "3");
+    })
+
     test_case(fold_string_0, {
         Data temp;
         fold_string(temp, "\\xfAf");
@@ -89,43 +104,44 @@ int main() {
     })
     test_case(parse_char_A, {
         auto data = solve_line(data_job{0, 0, "a: .byte \t'A'"});
-        assert_eq(data.size(), 1);
+        assert_eq(data.size(), 4);
         auto c = data.front();
         assert_eq(c, 'A');
     })
+
     test_case(parse_char_B, {
         auto data = solve_line(data_job{0, 0, "a: .byte \t127"});
-        assert_eq(data.size(), 1);
+        assert_eq(data.size(), 4);
         auto c = data.front();
         assert_eq(c, 127);
     })
     test_case(parse_char_C, {
         auto data = solve_line(data_job{0, 0, "a: .byte -127"});
-        assert_eq(data.size(), 1);
+        assert_eq(data.size(), 4);
         auto c = data.front();
         assert_eq(c, -127);
     })
     test_case(parse_char_D, {
         auto data = solve_line(data_job{0, 0, "a: .byte 0b101"});
-        assert_eq(data.size(), 1);
+        assert_eq(data.size(), 4);
         auto c = data.front();
         assert_eq(c, 0b101);
     })
     test_case(parse_char_E, {
         auto data = solve_line(data_job{0, 0, "a: .byte 0x34"});
-        assert_eq(data.size(), 1);
+        assert_eq(data.size(), 4);
         auto c = data.front();
         assert_eq(c, 0x34);
     })
     test_case(parse_halfword_A, {
         auto data = solve_line(data_job{0, 0, "a: .halfword 0x341d"});
-        assert_eq(data.size(), 2);
+        assert_eq(data.size(), 4);
         auto c = *reinterpret_cast<int16_t *>(data.begin());
         assert_eq(c, 0x341d);
     })
     test_case(parse_halfword_B, {
         auto data = solve_line(data_job{0, 0, "a: .halfword -0x341d"});
-        assert_eq(data.size(), 2);
+        assert_eq(data.size(), 4);
         auto c = *reinterpret_cast<int16_t *>(data.begin());
         assert_eq(c, -0x341d);
     })
