@@ -203,7 +203,7 @@ namespace parser_shared {
     size_t fill_queue() {
         job_queue.clear();
         bool flag = false;
-        Section state = NONE;
+        Section state = TEXT;
         std::string buffer{};
         try {
             while (source->good() && job_queue.size() < QUEUE_SIZE) {
