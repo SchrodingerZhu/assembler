@@ -9,6 +9,7 @@ absl::flat_hash_map<std::string, DATA_TYPE> data_types = {
         {".ascii",    ASCII},
         {".asciiz",   ASCIIZ},
         {".halfword", HALFWORD},
+        {".half", HALFWORD},
         {".word",     WORD},
         {".byte",     BYTE},
         {".space",    SPACE}
